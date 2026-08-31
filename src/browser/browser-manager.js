@@ -31,6 +31,10 @@ async function createBrowserbaseSession(config) {
       region: "ap-southeast-1",
       browserSettings: {
         viewport: { width: 1024, height: 640 },
+        context: {
+        id: "9a77fc50-c3c5-482c-8e98-3827b8b5df8a",
+        persist: true,
+        },
       },
     }),
   });
@@ -106,7 +110,7 @@ export class BrowserManager {
       this.context = this.browser.contexts()[0];
       if (!this.context) throw new Error("Remote browser context is unavailable.");
       
-      await installStorageState(this.context, storageState);
+      
     } else {
       this.browser = await this.launcher.launch({
         headless: true,
