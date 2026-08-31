@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Public testing console and documentation for the Tross LinkedIn Profile API."
+    />
+    <meta property="og:title" content="Tross Profile API" />
+    <meta property="og:description" content="Rendered LinkedIn profiles to structured JSON." />
+    <meta property="og:image" content="/og.png" />
+    <title>Tross Profile API — Test Console</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #080b11;
+        --panel: #101620;
+        --panel-2: #151d29;
+        --line: #273244;
+        --paper: #f4efe6;
+        --muted: #96a2b5;
+        --blue: #2578ff;
+        --blue-soft: #82adff;
+        --coral: #ff705f;
+        --green: #54d39a;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 78% 0%, rgba(37, 120, 255, 0.18), transparent 31rem),
+          var(--ink);
+        color: var(--paper);
+      }
+
+      button, input { font: inherit; }
+      code, pre, .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+      a { color: inherit; }
+      .shell { width: min(1400px, 100%); margin: auto; display: grid; grid-template-columns: 230px 1fr; }
+      aside { min-height: 100vh; border-right: 1px solid var(--line); padding: 28px 24px; }
+      .brand { display: flex; gap: 12px; align-items: center; }
+      .mark {
+        display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px;
+        background: var(--blue); font: 700 13px/1 monospace;
+      }
+      .eyebrow { color: var(--blue-soft); font: 700 11px/1.4 monospace; letter-spacing: .15em; text-transform: uppercase; }
+      .muted { color: var(--muted); }
+      nav { margin-top: 42px; display: grid; gap: 8px; }
+      nav a { padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; }
+      nav a:hover { background: var(--panel); color: var(--paper); }
+      .mode { margin-top: 48px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; color: var(--muted); line-height: 1.65; font-size: 13px; }
+      main { padding: 42px clamp(22px, 4vw, 62px) 80px; min-width: 0; }
+      header { display: flex; gap: 30px; justify-content: space-between; align-items: end; padding-bottom: 34px; border-bottom: 1px solid var(--line); }
+      h1 { margin: 14px 0; max-width: 850px; font-size: clamp(42px, 6.2vw, 82px); line-height: .98; letter-spacing: -.055em; }
+      .lede { max-width: 720px; color: var(--muted); line-height: 1.7; }
+      .status { min-width: 220px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .status div { border: 1px solid var(--line); border-radius: 9px; background: rgba(16, 22, 32, .85); padding: 12px; }
+      .status b { display: block; margin-top: 9px; font: 600 12px monospace; }
+      .dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--coral); }
+      .dot.ok { background: var(--green); }
+      .workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(380px, .92fr); gap: 22px; margin-top: 28px; }
+      .card { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: rgba(16, 22, 32, .9); }
+      .card-head { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding: 20px; border-bottom: 1px solid var(--line); }
+      .card h2 { margin: 0 0 6px; font-size: 20px; }
+      .pill { padding: 5px 9px; border-radius: 999px; background: var(--blue); font: 700 11px monospace; }
+      .card-body { padding: 22px; }
+      label { display: block; margin-bottom: 9px; font: 700 11px monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+      .form-row { display: flex; gap: 10px; }
+      input {
+        flex: 1; min-width: 0; height: 46px; border: 1px solid #344056; border-radius: 9px;
+        padding: 0 13px; background: #0b1018; color: var(--paper); outline: none;
+      }
+      input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,120,255,.15); }
+      button {
+        height: 46px; border: 0; border-radius: 9px; padding: 0 18px; cursor: pointer;
+        background: var(--blue); color: white; font-weight: 700;
+      }
+      button:disabled { opacity: .6; cursor: wait; }
+      .hint { margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+      .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 22px; }
+      .metrics div { border: 1px solid var(--line); border-radius: 9px; background: #0b1018; padding: 13px; }
+      .metrics strong { display: block; color: var(--blue-soft); font: 600 18px monospace; }
+      .metrics span { color: var(--muted); font-size: 11px; }
+      .terminal { background: #06090e; }
+      .lights { display: flex; gap: 6px; }
+      .lights i { width: 8px; height: 8px; border-radius: 50%; background: var(--coral); }
+      .lights i:nth-child(2) { background: #e8bb54; }
+      .lights i:nth-child(3) { background: var(--green); }
+      pre {
+        margin: 0; min-height: 430px; max-height: 610px; overflow: auto; white-space: pre-wrap;
+        overflow-wrap: anywhere; color: #c6d5ef; font-size: 12px; line-height: 1.65;
+      }
+      .docs { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .docs article { border: 1px solid var(--line); border-radius: 12px; background: rgba(16,22,32,.65); padding: 20px; }
+      .docs h3 { margin: 0 0 11px; }
+      .docs p, .docs li { color: var(--muted); line-height: 1.65; font-size: 14px; }
+      .code { margin-top: 12px; padding: 14px; overflow: auto; border-radius: 9px; background: #05080d; color: #c6d5ef; font-size: 12px; }
+      footer { margin-top: 30px; color: var(--muted); font-size: 12px; }
+
+      @media (max-width: 960px) {
+        .shell { display: block; }
+        aside { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+        nav, .mode { display: none; }
+        header { display: block; }
+        .status { margin-top: 24px; }
+        .workspace, .docs { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 560px) {
+        main { padding-inline: 16px; }
+        .form-row { display: grid; }
+        .metrics { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <div class="brand">
+          <div class="mark">T/11</div>
+          <div><strong>Tross Profile API</strong><div class="eyebrow">public test console</div></div>
+        </div>
+        <nav aria-label="Page navigation">
+          <a href="#playground">Playground</a>
+          <a href="#api-docs">API documentation</a>
+          <a href="/health">Health JSON</a>
+          <a href="/api">API manifest</a>
+        </nav>
+        <div class="mode"><span class="eyebrow">Operating mode</span><br />Authenticated browser. One extraction at a time. No CAPTCHA or challenge bypass.</div>
+      </aside>
+
+      <main>
+        <header>
+          <div>
+            <div class="eyebrow">deterministic extraction service</div>
+            <h1>Rendered profiles in.<br />Structured JSON out.</h1>
+            <p class="lede">Submit a public LinkedIn profile URL to exercise the real hosted API. Complete profiles can take two to five minutes while visible sections hydrate.</p>
+          </div>
+          <div class="status" aria-live="polite">
+            <div><span class="muted mono">API</span><b><span id="api-dot" class="dot"></span><span id="api-status">checking</span></b></div>
+            <div><span class="muted mono">Session</span><b><span id="session-dot" class="dot"></span><span id="session-status">checking</span></b></div>
+          </div>
+        </header>
+
+        <section class="workspace" id="playground">
+          <article class="card">
+            <div class="card-head"><div><h2>Profile request</h2><span class="muted">Calls the production endpoint on this host.</span></div><span class="pill">POST</span></div>
+            <div class="card-body">
+              <form id="profile-form">
+                <label for="profile-url">LinkedIn profile URL</label>
+                <div class="form-row">
+                  <input id="profile-url" type="url" required value="https://www.linkedin.com/in/biplobdas1998/" pattern="https://(www\.)?linkedin\.com/in/[^/]+/?" />
+                  <button id="submit-button" type="submit">Run request →</button>
+                </div>
+                <p class="hint">Keep this page open. The server intentionally processes one authenticated extraction at a time.</p>
+              </form>
+              <div class="metrics">
+                <div><strong>16 KB</strong><span>request-body limit</span></div>
+                <div><strong>01</strong><span>default concurrency</span></div>
+                <div><strong>300 s</strong><span>hard timeout</span></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card terminal">
+            <div class="card-head"><div class="lights"><i></i><i></i><i></i></div><span class="eyebrow">response.json</span></div>
+            <div class="card-body"><pre id="output">{
+  "ready": true,
+  "next": "Submit a LinkedIn profile URL."
+}</pre></div>
+          </article>
+        </section>
+
+        <section class="docs" id="api-docs">
+          <article>
+            <h3>POST /api/profile</h3>
+            <p>JSON request body with one strict HTTPS LinkedIn profile URL.</p>
+            <pre class="code">curl -X POST "$BASE_URL/api/profile" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://www.linkedin.com/in/example/"}'</pre>
+          </article>
+          <article>
+            <h3>Response and errors</h3>
+            <p>Success returns normalized profile, experience, education, certifications, skills, and languages. Authentication challenges fail safely with 503; long upstream work returns 504.</p>
+            <pre class="code">GET /health
+POST /api/profile
+Content-Type: application/json</pre>
+          </article>
+        </section>
+        <footer>Visible authenticated data only · deterministic v11 parser · no persistent profile storage</footer>
+      </main>
+    </div>
+
+    <script>
+      const output = document.querySelector("#output");
+      const form = document.querySelector("#profile-form");
+      const button = document.querySelector("#submit-button");
+
+      function setStatus(id, ready, text) {
+        document.querySelector("#" + id + "-status").textContent = text;
+        document.querySelector("#" + id + "-dot").classList.toggle("ok", ready);
+      }
+
+      fetch("/health")
+        .then((response) => response.json())
+        .then((health) => {
+          setStatus("api", Boolean(health.ok), health.ok ? "online" : "offline");
+          setStatus("session", health.linkedinSession === "configured", health.linkedinSession.replaceAll("_", " "));
+        })
+        .catch(() => {
+          setStatus("api", false, "offline");
+          setStatus("session", false, "unknown");
+        });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        button.disabled = true;
+        button.textContent = "Extracting…";
+        output.textContent = JSON.stringify({ status: "hydrating visible profile sections", patience: "This can take 2–5 minutes." }, null, 2);
+
+        try {
+          const response = await fetch("/api/profile", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ url: document.querySelector("#profile-url").value }),
+          });
+          const payload = await response.json();
+          output.textContent = JSON.stringify(payload, null, 2);
+        } catch {
+          output.textContent = JSON.stringify({ error: { code: "network_error", message: "The hosted API could not be reached." } }, null, 2);
+        } finally {
+          button.disabled = false;
+          button.textContent = "Run request →";
+        }
+      });
+    </script>
+  </body>
+</html>

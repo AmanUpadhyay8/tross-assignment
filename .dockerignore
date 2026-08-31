@@ -1,0 +1,11 @@
+node_modules
+.git
+.env*
+!.env.example
+linkedin-storage-state.json
+*.storage-state.json
+.vinext
+dist
+coverage
+reference
+tests
