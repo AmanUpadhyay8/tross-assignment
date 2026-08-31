@@ -59,6 +59,7 @@ export class BrowserManager {
     this.context = await this.browser.newContext({
       storageState,
       serviceWorkers: "block",
+      viewport: { width: 1024, height: 640 },
     });
     await this.context.route("**/*", (route) =>
       blockedResourceTypes.has(route.request().resourceType())

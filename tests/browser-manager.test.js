@@ -39,6 +39,7 @@ test("browser manager uses low-memory production settings", async () => {
   assert.equal(launchOptions.headless, true);
   assert.ok(launchOptions.args.includes("--renderer-process-limit=2"));
   assert.equal(contextOptions.serviceWorkers, "block");
+  assert.deepEqual(contextOptions.viewport, { width: 1024, height: 640 });
   assert.deepEqual(contextOptions.storageState, storageState);
   assert.equal(routePattern, "**/*");
 

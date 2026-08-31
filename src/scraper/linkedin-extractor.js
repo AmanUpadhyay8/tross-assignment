@@ -4467,6 +4467,13 @@ export async function extractLinkedInProfile({
         aboutSection
       );
 
+    // Everything needed from the main profile is now plain data. Closing this
+    // renderer before loading detail routes keeps only one LinkedIn page alive
+    // at a time, which is critical on 512 MB hosting instances.
+    await profilePage
+      .close()
+      .catch(() => {});
+
     const routes = {
       experience:
         `${base}/details/experience/`,

@@ -8,6 +8,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: MALLOC_ARENA_MAX
+        value: "2"
       - key: SCRAPE_CONCURRENCY
         value: "1"
       - key: SCRAPE_TIMEOUT_MS
