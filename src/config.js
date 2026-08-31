@@ -17,6 +17,7 @@ export function createConfig(env = process.env) {
 
   return {
     nodeEnv: env.NODE_ENV || "development",
+    deployment: env.RENDER_GIT_COMMIT?.slice(0, 7) || "local",
     port: positiveInteger(env.PORT, 3000),
     scrapeConcurrency: positiveInteger(env.SCRAPE_CONCURRENCY, 1),
     scrapeTimeoutMs: positiveInteger(env.SCRAPE_TIMEOUT_MS, 300_000),

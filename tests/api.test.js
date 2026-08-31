@@ -31,6 +31,7 @@ test("health does not expose session contents", async () => {
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), {
       ok: true,
+      deployment: "local",
       browser: "not_started",
       linkedinSession: "not_configured",
     });

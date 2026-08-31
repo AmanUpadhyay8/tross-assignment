@@ -13,6 +13,10 @@ const server = app.listen(config.port, () => {
   console.info(`Tross LinkedIn Profile API listening on http://localhost:${config.port}`);
 });
 
+// Render recommends keeping Node connections alive longer than its edge proxy.
+server.keepAliveTimeout = 120_000;
+server.headersTimeout = 125_000;
+
 async function shutdown(signal) {
   console.info(`${signal} received; shutting down.`);
   server.close(async () => {

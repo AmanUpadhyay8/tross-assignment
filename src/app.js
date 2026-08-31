@@ -37,7 +37,7 @@ export function createApp({ config, service, browserManager }) {
   );
 
   app.get("/health", (_req, res) => {
-    res.json({ ok: true, ...browserManager.getStatus() });
+    res.json({ ok: true, deployment: config.deployment, ...browserManager.getStatus() });
   });
 
   app.get("/api", (_req, res) => {
