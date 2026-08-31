@@ -105,7 +105,7 @@ export class BrowserManager {
       this.browser = await this.launcher.connectOverCDP(session.connectUrl);
       this.context = this.browser.contexts()[0];
       if (!this.context) throw new Error("Remote browser context is unavailable.");
-      await Promise.allSettled(this.context.pages().map((page) => page.close()));
+      
       await installStorageState(this.context, storageState);
     } else {
       this.browser = await this.launcher.launch({

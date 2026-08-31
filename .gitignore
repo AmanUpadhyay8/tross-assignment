@@ -30,6 +30,7 @@ yarn-error.log*
 .env
 .env.*
 !.env.example
+.env.example
 storage-state.json
 storageState.json
 linkedin-storage-state.json
