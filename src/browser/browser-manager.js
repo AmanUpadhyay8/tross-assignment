@@ -1,72 +1,63 @@
-import { chromium } from "playwright";
+import { chromium } from 'playwright';
 
-import { loadStorageState } from "./auth.js";
+import { loadStorageState } from './auth.js';
 
-const blockedResourceTypes = new Set(["font", "image", "media"]);
+const blockedResourceTypes = new Set(['font', 'image', 'media']);
 
 const launchArgs = [
-  "--no-sandbox",
-  "--disable-dev-shm-usage",
-  "--disable-background-networking",
-  "--disable-component-update",
-  "--disable-default-apps",
-  "--disable-extensions",
-  "--disable-gpu",
-  "--disable-features=MediaRouter",
-  "--mute-audio",
-  "--no-first-run",
-  "--no-zygote",
-  "--renderer-process-limit=2",
+  '--no-sandbox',
+  '--disable-dev-shm-usage',
+  '--disable-background-networking',
+  '--disable-component-update',
+  '--disable-default-apps',
+  '--disable-extensions',
+  '--disable-gpu',
+  '--disable-features=MediaRouter',
+  '--mute-audio',
+  '--no-first-run',
+  '--no-zygote',
+  '--renderer-process-limit=2',
 ];
 
 async function createBrowserbaseSession(config) {
-  const response = await fetch("https://api.browserbase.com/v1/sessions", {
-    method: "POST",
+  const response = await fetch('https://api.browserbase.com/v1/sessions', {
+    method: 'POST',
     headers: {
-      "content-type": "application/json",
-      "x-bb-api-key": config.browserbaseApiKey,
+      'content-type': 'application/json',
+      'x-bb-api-key': config.browserbaseApiKey,
     },
     body: JSON.stringify({
       timeout: 900,
-      region: "ap-southeast-1",
+      region: 'ap-southeast-1',
       browserSettings: {
         viewport: { width: 1024, height: 640 },
         context: {
-        id: "9a77fc50-c3c5-482c-8e98-3827b8b5df8a",
-        persist: true,
+          id: '9a77fc50-c3c5-482c-8e98-3827b8b5df8a',
+          persist: true,
         },
       },
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Remote browser session creation failed (${response.status}).`);
+    throw new Error(
+      `Remote browser session creation failed (${response.status}).`,
+    );
   }
 
   const session = await response.json();
   if (!session?.connectUrl) {
-    throw new Error("Remote browser session did not provide a connection URL.");
+    throw new Error('Remote browser session did not provide a connection URL.');
   }
   return session;
 }
 
-async function installStorageState(context, storageState) {
-  if (storageState.cookies.length) {
-    await context.addCookies(storageState.cookies);
-  }
-
-  const localStorageByOrigin = Object.fromEntries(
-    storageState.origins.map(({ origin, localStorage = [] }) => [origin, localStorage]),
-  );
-  await context.addInitScript((entries) => {
-    for (const { name, value } of entries[globalThis.location.origin] || []) {
-      globalThis.localStorage.setItem(name, value);
-    }
-  }, localStorageByOrigin);
-}
-
 export class BrowserManager {
-  constructor(config, launcher = chromium, remoteSessionFactory = createBrowserbaseSession) {
+  constructor(
+    config,
+    launcher = chromium,
+    remoteSessionFactory = createBrowserbaseSession,
+  ) {
     this.config = config;
     this.launcher = launcher;
     this.remoteSessionFactory = remoteSessionFactory;
@@ -77,12 +68,12 @@ export class BrowserManager {
 
   getStatus() {
     return {
-      browser: this.context ? "ready" : "not_started",
-      browserMode: this.isRemote() ? "remote" : "local",
+      browser: this.context ? 'ready' : 'not_started',
+      browserMode: this.isRemote() ? 'remote' : 'local',
       linkedinSession:
         this.config.storageStateBase64 || this.config.storageStatePath
-          ? "configured"
-          : "not_configured",
+          ? 'configured'
+          : 'not_configured',
     };
   }
 
@@ -108,9 +99,8 @@ export class BrowserManager {
       const session = await this.remoteSessionFactory(this.config);
       this.browser = await this.launcher.connectOverCDP(session.connectUrl);
       this.context = this.browser.contexts()[0];
-      if (!this.context) throw new Error("Remote browser context is unavailable.");
-      
-      
+      if (!this.context)
+        throw new Error('Remote browser context is unavailable.');
     } else {
       this.browser = await this.launcher.launch({
         headless: true,
@@ -118,11 +108,11 @@ export class BrowserManager {
       });
       this.context = await this.browser.newContext({
         storageState,
-        serviceWorkers: "block",
+        serviceWorkers: 'block',
         viewport: { width: 1024, height: 640 },
       });
     }
-    await this.context.route("**/*", (route) =>
+    await this.context.route('**/*', (route) =>
       blockedResourceTypes.has(route.request().resourceType())
         ? route.abort()
         : route.continue(),

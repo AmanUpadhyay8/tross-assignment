@@ -1,8 +1,6 @@
-
 /* oxlint-disable eslint/no-unused-vars, unicorn/no-new-array, eslint/prefer-const */
 
-const sleep = (ms) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /* =========================================================
    CONFIG
@@ -44,16 +42,16 @@ export function clean(value) {
   }
 
   const result = value
-    .replace(/\u200b/g, "")
-    .replace(/\r/g, "")
-    .replace(/[ \t]+/g, " ")
+    .replace(/\u200b/g, '')
+    .replace(/\r/g, '')
+    .replace(/[ \t]+/g, ' ')
     .trim();
 
   return result || null;
 }
 
 export function normalize(value) {
-  return clean(value)?.toLowerCase() || "";
+  return clean(value)?.toLowerCase() || '';
 }
 
 export function lines(text) {
@@ -62,10 +60,10 @@ export function lines(text) {
   }
 
   return text
-    .split("\n")
+    .split('\n')
     .map(clean)
     .filter(Boolean)
-    .filter((line) => line !== "·");
+    .filter((line) => line !== '·');
 }
 
 export function isDateRange(value) {
@@ -74,7 +72,7 @@ export function isDateRange(value) {
   }
 
   return /(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\s+\d{4}\s*[-–]\s*(?:present|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\s+\d{4})/i.test(
-    value
+    value,
   );
 }
 
@@ -84,15 +82,12 @@ export function isSingleExperienceDate(value) {
   }
 
   return /^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\s+\d{4}(?:\s*·\s*\d+\s+(?:mo|mos|yr|yrs|wk|wks|day|days))?$/i.test(
-    value.trim()
+    value.trim(),
   );
 }
 
 function isExperienceDate(value) {
-  return (
-    isDateRange(value) ||
-    isSingleExperienceDate(value)
-  );
+  return isDateRange(value) || isSingleExperienceDate(value);
 }
 
 export function splitDateDuration(value) {
@@ -103,10 +98,7 @@ export function splitDateDuration(value) {
     };
   }
 
-  const parts = value
-    .split("·")
-    .map(clean)
-    .filter(Boolean);
+  const parts = value.split('·').map(clean).filter(Boolean);
 
   return {
     dateRange: parts[0] || null,
@@ -120,7 +112,7 @@ function looksLikeEmploymentMeta(value) {
   }
 
   return /(full-time|part-time|contract|self-employed|freelance|internship|apprenticeship|seasonal)/i.test(
-    value
+    value,
   );
 }
 
@@ -129,16 +121,9 @@ export function extractEmploymentType(value) {
     return null;
   }
 
-  const pieces = value
-    .split("·")
-    .map(clean)
-    .filter(Boolean);
+  const pieces = value.split('·').map(clean).filter(Boolean);
 
-  return (
-    pieces.find(
-      looksLikeEmploymentMeta
-    ) || null
-  );
+  return pieces.find(looksLikeEmploymentMeta) || null;
 }
 
 export function extractOrganizationFromMeta(value) {
@@ -146,10 +131,7 @@ export function extractOrganizationFromMeta(value) {
     return null;
   }
 
-  const pieces = value
-    .split("·")
-    .map(clean)
-    .filter(Boolean);
+  const pieces = value.split('·').map(clean).filter(Boolean);
 
   if (!pieces.length) {
     return null;
@@ -163,9 +145,7 @@ function looksLikeExplicitWorkLocation(value) {
     return false;
   }
 
-  return /(?:hybrid|remote|on-site|onsite)$/i.test(
-    value.trim()
-  );
+  return /(?:hybrid|remote|on-site|onsite)$/i.test(value.trim());
 }
 
 function isPronouns(value) {
@@ -173,9 +153,7 @@ function isPronouns(value) {
     return false;
   }
 
-  return /^(he\/him|she\/her|they\/them|he\/they|she\/they)$/i.test(
-    value
-  );
+  return /^(he\/him|she\/her|they\/them|he\/they|she\/they)$/i.test(value);
 }
 
 function isConnectionDegree(value) {
@@ -183,9 +161,7 @@ function isConnectionDegree(value) {
     return false;
   }
 
-  return /^·?\s*(?:1st|2nd|3rd\+?)$/i.test(
-    value.trim()
-  );
+  return /^·?\s*(?:1st|2nd|3rd\+?)$/i.test(value.trim());
 }
 
 function extractCount(text, suffix) {
@@ -193,16 +169,9 @@ function extractCount(text, suffix) {
     return null;
   }
 
-  const regex =
-    new RegExp(
-      `([\\d,.+]+)\\s+${suffix}`,
-      "i"
-    );
+  const regex = new RegExp(`([\\d,.+]+)\\s+${suffix}`, 'i');
 
-  return (
-    text.match(regex)?.[1] ||
-    null
-  );
+  return text.match(regex)?.[1] || null;
 }
 
 function uniqueBy(items, keyFn) {
@@ -211,10 +180,7 @@ function uniqueBy(items, keyFn) {
   return items.filter((item) => {
     const key = keyFn(item);
 
-    if (
-      !key ||
-      seen.has(key)
-    ) {
+    if (!key || seen.has(key)) {
       return false;
     }
 
@@ -225,56 +191,37 @@ function uniqueBy(items, keyFn) {
 }
 
 function getBaseUrl(profileUrl) {
-  const url =
-    new URL(profileUrl);
+  const url = new URL(profileUrl);
 
-  const match =
-    url.pathname.match(
-      /^\/in\/[^/]+/
-    );
+  const match = url.pathname.match(/^\/in\/[^/]+/);
 
   if (!match) {
-    throw new Error(
-      "Invalid LinkedIn profile URL"
-    );
+    throw new Error('Invalid LinkedIn profile URL');
   }
 
   return `${url.origin}${match[0]}`;
 }
 
-function isLinkedInOrganizationUrl(
-  href
-) {
+function isLinkedInOrganizationUrl(href) {
   if (!href) {
     return false;
   }
 
   return (
-    href.includes(
-      "linkedin.com/company/"
-    ) ||
-    href.includes(
-      "linkedin.com/school/"
-    )
+    href.includes('linkedin.com/company/') ||
+    href.includes('linkedin.com/school/')
   );
 }
 
-function canonicalLinkedInEntityUrl(
-  href
-) {
+function canonicalLinkedInEntityUrl(href) {
   if (!href) {
     return null;
   }
 
   try {
-    const url =
-      new URL(href);
+    const url = new URL(href);
 
-    const pathname =
-      url.pathname.replace(
-        /\/+$/,
-        ""
-      );
+    const pathname = url.pathname.replace(/\/+$/, '');
 
     return `${url.origin}${pathname}/`;
   } catch {
@@ -286,49 +233,32 @@ function canonicalLinkedInEntityUrl(
    BROWSER
    ========================================================= */
 
-async function findMainProfilePage(
-  context,
-  timeoutMs = 60000
-) {
-  const start =
-    Date.now();
+async function findMainProfilePage(context, timeoutMs = 60000) {
+  const start = Date.now();
 
-  while (
-    Date.now() - start <
-    timeoutMs
-  ) {
-    const page =
-      context.pages().find(
-        (p) =>
-          /^https:\/\/www\.linkedin\.com\/in\/[^/]+\/?$/i.test(
-            p.url()
-          )
+  while (Date.now() - start < timeoutMs) {
+    const page = context
+      .pages()
+      .find((p) =>
+        /^https:\/\/www\.linkedin\.com\/in\/[^/]+\/?$/i.test(p.url()),
       );
 
     if (page) {
       return page;
     }
 
-    console.log(
-      "Waiting for main LinkedIn profile..."
-    );
+    console.log('Waiting for main LinkedIn profile...');
 
     await sleep(2000);
   }
 
-  throw new Error(
-    "Main LinkedIn profile not found."
-  );
+  throw new Error('Main LinkedIn profile not found.');
 }
 
-async function navigateLinkedIn(
-  page,
-  url,
-  retryCount = 0
-) {
+async function navigateLinkedIn(page, url, retryCount = 0) {
   try {
     await page.goto(url, {
-      waitUntil: "commit",
+      waitUntil: 'commit',
       timeout: 30000,
     });
   } catch (error) {
@@ -336,54 +266,38 @@ async function navigateLinkedIn(
     let current;
 
     try {
-      requested =
-        new URL(url);
+      requested = new URL(url);
 
-      current =
-        new URL(
-          page.url()
-        );
+      current = new URL(page.url());
     } catch {
       throw error;
     }
 
-    if (
-      current.pathname !==
-      requested.pathname
-    ) {
+    if (current.pathname !== requested.pathname) {
       if (
         retryCount < 1 &&
-        (
-          error.name ===
-            "TimeoutError" ||
+        (error.name === 'TimeoutError' ||
           /ERR_(?:CONNECTION_CLOSED|CONNECTION_RESET|NETWORK_CHANGED)/i.test(
-            error.message
-          )
-        )
+            error.message,
+          ))
       ) {
         await sleep(1000);
 
-        return navigateLinkedIn(
-          page,
-          url,
-          retryCount + 1
-        );
+        return navigateLinkedIn(page, url, retryCount + 1);
       }
 
       throw error;
     }
 
     console.log(
-      "Navigation timed out, but target URL was reached. Continuing..."
+      'Navigation timed out, but target URL was reached. Continuing...',
     );
   }
 
-  await page
-    .locator("main")
-    .waitFor({
-      state: "attached",
-      timeout: 20000,
-    });
+  await page.locator('main').waitFor({
+    state: 'attached',
+    timeout: 20000,
+  });
 
   await sleep(2500);
 }
@@ -392,111 +306,68 @@ async function navigateLinkedIn(
    SCROLL CONTAINER DETECTION
    ========================================================= */
 
-async function detectScrollContainer(
-  page
-) {
+async function detectScrollContainer(page) {
   return page.evaluate(() => {
     document
-      .querySelectorAll(
-        "[data-linkedin-scroll-root]"
-      )
-      .forEach((el) =>
-        el.removeAttribute(
-          "data-linkedin-scroll-root"
-        )
-      );
+      .querySelectorAll('[data-linkedin-scroll-root]')
+      .forEach((el) => el.removeAttribute('data-linkedin-scroll-root'));
 
-    const main =
-      document.querySelector(
-        "main"
-      );
+    const main = document.querySelector('main');
 
     if (!main) {
       return null;
     }
 
-    const candidates =
-      Array.from(
-        document.querySelectorAll("*")
+    const candidates = Array.from(document.querySelectorAll('*'))
+      .map((el) => {
+        const style = window.getComputedStyle(el);
+
+        const overflowY = style.overflowY;
+
+        const scrollHeight = el.scrollHeight;
+
+        const clientHeight = el.clientHeight;
+
+        const scrollDistance = scrollHeight - clientHeight;
+
+        const relevantToMain = el === main || el.contains(main);
+
+        return {
+          el,
+          tag: el.tagName,
+          overflowY,
+          scrollHeight,
+          clientHeight,
+          scrollDistance,
+          relevantToMain,
+        };
+      })
+      .filter(
+        (item) =>
+          item.relevantToMain &&
+          item.scrollDistance > 100 &&
+          (item.overflowY === 'auto' || item.overflowY === 'scroll'),
       )
-        .map((el) => {
-          const style =
-            window.getComputedStyle(
-              el
-            );
-
-          const overflowY =
-            style.overflowY;
-
-          const scrollHeight =
-            el.scrollHeight;
-
-          const clientHeight =
-            el.clientHeight;
-
-          const scrollDistance =
-            scrollHeight -
-            clientHeight;
-
-          const relevantToMain =
-            el === main ||
-            el.contains(main);
-
-          return {
-            el,
-            tag: el.tagName,
-            overflowY,
-            scrollHeight,
-            clientHeight,
-            scrollDistance,
-            relevantToMain,
-          };
-        })
-        .filter(
-          (item) =>
-            item.relevantToMain &&
-            item.scrollDistance >
-              100 &&
-            (
-              item.overflowY ===
-                "auto" ||
-              item.overflowY ===
-                "scroll"
-            )
-        )
-        .sort(
-          (a, b) =>
-            b.scrollDistance -
-            a.scrollDistance
-        );
+      .sort((a, b) => b.scrollDistance - a.scrollDistance);
 
     if (!candidates.length) {
       return null;
     }
 
-    const winner =
-      candidates[0];
+    const winner = candidates[0];
 
-    winner.el.setAttribute(
-      "data-linkedin-scroll-root",
-      "true"
-    );
+    winner.el.setAttribute('data-linkedin-scroll-root', 'true');
 
     return {
-      tag:
-        winner.tag,
+      tag: winner.tag,
 
-      overflowY:
-        winner.overflowY,
+      overflowY: winner.overflowY,
 
-      scrollHeight:
-        winner.scrollHeight,
+      scrollHeight: winner.scrollHeight,
 
-      clientHeight:
-        winner.clientHeight,
+      clientHeight: winner.clientHeight,
 
-      scrollDistance:
-        winner.scrollDistance,
+      scrollDistance: winner.scrollDistance,
     };
   });
 }
@@ -505,47 +376,28 @@ async function detectScrollContainer(
    DOCUMENT SCROLL FALLBACK
    ========================================================= */
 
-async function hydrateDocumentScroll(
-  page,
-  config,
-  label
-) {
-  const {
-    step,
-    delayMs,
-    bottomWaitMs,
-    stableBottomRounds,
-    maxSteps,
-  } = config;
+async function hydrateDocumentScroll(page, config, label) {
+  const { step, delayMs, bottomWaitMs, stableBottomRounds, maxSteps } = config;
 
-  console.log(
-    `${label}: using document scrolling fallback`
-  );
+  console.log(`${label}: using document scrolling fallback`);
 
-  const initial =
-    await page.evaluate(() => {
-      const el =
-        document.scrollingElement;
+  const initial = await page.evaluate(() => {
+    const el = document.scrollingElement;
 
-      if (!el) {
-        return null;
-      }
+    if (!el) {
+      return null;
+    }
 
-      el.setAttribute(
-        "data-document-scroll-root",
-        "true"
-      );
+    el.setAttribute('data-document-scroll-root', 'true');
 
-      el.scrollTop = 0;
+    el.scrollTop = 0;
 
-      return {
-        scrollHeight:
-          el.scrollHeight,
+    return {
+      scrollHeight: el.scrollHeight,
 
-        clientHeight:
-          el.clientHeight,
-      };
-    });
+      clientHeight: el.clientHeight,
+    };
+  });
 
   if (!initial) {
     return;
@@ -553,156 +405,99 @@ async function hydrateDocumentScroll(
 
   let stableRounds = 0;
 
-  let previousHeight =
-    initial.scrollHeight;
+  let previousHeight = initial.scrollHeight;
 
-  let previousMainLength =
-    await page.evaluate(
-      () =>
-        document.querySelector(
-          "main"
-        )?.innerText.length ||
-        0
-    );
+  let previousMainLength = await page.evaluate(
+    () => document.querySelector('main')?.innerText.length || 0,
+  );
 
-  for (
-    let i = 0;
-    i < maxSteps;
-    i++
-  ) {
-    await page.evaluate(
-      (amount) => {
-        const el =
-          document.querySelector(
-            "[data-document-scroll-root]"
-          );
+  for (let i = 0; i < maxSteps; i++) {
+    await page.evaluate((amount) => {
+      const el = document.querySelector('[data-document-scroll-root]');
 
-        if (el) {
-          el.scrollTop +=
-            amount;
-        }
-      },
-      step
-    );
+      if (el) {
+        el.scrollTop += amount;
+      }
+    }, step);
 
     await sleep(delayMs);
 
-    const state =
-      await page.evaluate(() => {
-        const el =
-          document.querySelector(
-            "[data-document-scroll-root]"
-          );
+    const state = await page.evaluate(() => {
+      const el = document.querySelector('[data-document-scroll-root]');
 
-        if (!el) {
-          return null;
-        }
+      if (!el) {
+        return null;
+      }
 
-        return {
-          top:
-            el.scrollTop,
+      return {
+        top: el.scrollTop,
 
-          scrollHeight:
-            el.scrollHeight,
+        scrollHeight: el.scrollHeight,
 
-          clientHeight:
-            el.clientHeight,
+        clientHeight: el.clientHeight,
 
-          mainLength:
-            document.querySelector(
-              "main"
-            )?.innerText.length ||
-            0,
-        };
-      });
+        mainLength: document.querySelector('main')?.innerText.length || 0,
+      };
+    });
 
     if (!state) {
       break;
     }
 
-    const atBottom =
-      state.top +
-        state.clientHeight >=
-      state.scrollHeight -
-        100;
+    const atBottom = state.top + state.clientHeight >= state.scrollHeight - 100;
 
-    if (
-      label
-        .toLowerCase()
-        .includes("skills")
-    ) {
+    if (label.toLowerCase().includes('skills')) {
       console.log(
         `[${label} ${i + 1}] top=${Math.round(
-          state.top
-        )} height=${state.scrollHeight} text=${state.mainLength}`
+          state.top,
+        )} height=${state.scrollHeight} text=${state.mainLength}`,
       );
     }
 
     if (!atBottom) {
       stableRounds = 0;
 
-      previousHeight =
-        state.scrollHeight;
+      previousHeight = state.scrollHeight;
 
-      previousMainLength =
-        state.mainLength;
+      previousMainLength = state.mainLength;
 
       continue;
     }
 
-    await sleep(
-      bottomWaitMs
-    );
+    await sleep(bottomWaitMs);
 
-    const waited =
-      await page.evaluate(() => {
-        const el =
-          document.querySelector(
-            "[data-document-scroll-root]"
-          );
+    const waited = await page.evaluate(() => {
+      const el = document.querySelector('[data-document-scroll-root]');
 
-        if (!el) {
-          return null;
-        }
+      if (!el) {
+        return null;
+      }
 
-        return {
-          top:
-            el.scrollTop,
+      return {
+        top: el.scrollTop,
 
-          scrollHeight:
-            el.scrollHeight,
+        scrollHeight: el.scrollHeight,
 
-          clientHeight:
-            el.clientHeight,
+        clientHeight: el.clientHeight,
 
-          mainLength:
-            document.querySelector(
-              "main"
-            )?.innerText.length ||
-            0,
-        };
-      });
+        mainLength: document.querySelector('main')?.innerText.length || 0,
+      };
+    });
 
     if (!waited) {
       break;
     }
 
     const hydrated =
-      waited.scrollHeight >
-        previousHeight ||
-      waited.mainLength >
-        previousMainLength;
+      waited.scrollHeight > previousHeight ||
+      waited.mainLength > previousMainLength;
 
-    previousHeight =
-      waited.scrollHeight;
+    previousHeight = waited.scrollHeight;
 
-    previousMainLength =
-      waited.mainLength;
+    previousMainLength = waited.mainLength;
 
     if (hydrated) {
-      console.log(
-        `${label}: new batch hydrated — continuing`
-      );
+      console.log(`${label}: new batch hydrated — continuing`);
 
       stableRounds = 0;
 
@@ -712,26 +507,18 @@ async function hydrateDocumentScroll(
     stableRounds++;
 
     console.log(
-      `${label}: bottom stable ${stableRounds}/${stableBottomRounds}`
+      `${label}: bottom stable ${stableRounds}/${stableBottomRounds}`,
     );
 
-    if (
-      stableRounds >=
-      stableBottomRounds
-    ) {
+    if (stableRounds >= stableBottomRounds) {
       break;
     }
   }
 
-  await sleep(
-    bottomWaitMs
-  );
+  await sleep(bottomWaitMs);
 
   await page.evaluate(() => {
-    const el =
-      document.querySelector(
-        "[data-document-scroll-root]"
-      );
+    const el = document.querySelector('[data-document-scroll-root]');
 
     if (el) {
       el.scrollTop = 0;
@@ -745,68 +532,37 @@ async function hydrateDocumentScroll(
    INTERNAL SCROLL HYDRATION
    ========================================================= */
 
-async function hydrateScroll(
-  page,
-  config,
-  label = "page"
-) {
-  const {
-    step,
-    delayMs,
-    bottomWaitMs,
-    stableBottomRounds,
-    maxSteps,
-  } = config;
+async function hydrateScroll(page, config, label = 'page') {
+  const { step, delayMs, bottomWaitMs, stableBottomRounds, maxSteps } = config;
 
-  console.log(
-    `Hydrating ${label} with slow scrolling...`
-  );
+  console.log(`Hydrating ${label} with slow scrolling...`);
 
-  let scrollInfo =
-    await detectScrollContainer(
-      page
-    );
+  let scrollInfo = await detectScrollContainer(page);
 
   if (!scrollInfo) {
-    console.log(
-      `${label}: no nested scroll container found`
-    );
+    console.log(`${label}: no nested scroll container found`);
 
-    await hydrateDocumentScroll(
-      page,
-      config,
-      label
-    );
+    await hydrateDocumentScroll(page, config, label);
 
     return;
   }
 
-  console.log(
-    `${label}: scroll container detected`
-  );
+  console.log(`${label}: scroll container detected`);
 
   console.log({
-    tag:
-      scrollInfo.tag,
+    tag: scrollInfo.tag,
 
-    overflowY:
-      scrollInfo.overflowY,
+    overflowY: scrollInfo.overflowY,
 
-    clientHeight:
-      scrollInfo.clientHeight,
+    clientHeight: scrollInfo.clientHeight,
 
-    scrollHeight:
-      scrollInfo.scrollHeight,
+    scrollHeight: scrollInfo.scrollHeight,
 
-    scrollDistance:
-      scrollInfo.scrollDistance,
+    scrollDistance: scrollInfo.scrollDistance,
   });
 
   await page.evaluate(() => {
-    const scroller =
-      document.querySelector(
-        "[data-linkedin-scroll-root]"
-      );
+    const scroller = document.querySelector('[data-linkedin-scroll-root]');
 
     if (scroller) {
       scroller.scrollTop = 0;
@@ -817,95 +573,55 @@ async function hydrateScroll(
 
   let stableRounds = 0;
 
-  let previousHeight =
-    scrollInfo.scrollHeight;
+  let previousHeight = scrollInfo.scrollHeight;
 
-  let previousMainLength =
-    await page.evaluate(
-      () =>
-        document.querySelector(
-          "main"
-        )?.innerText.length ||
-        0
+  let previousMainLength = await page.evaluate(
+    () => document.querySelector('main')?.innerText.length || 0,
+  );
+
+  for (let iteration = 0; iteration < maxSteps; iteration++) {
+    const markerExists = await page.evaluate(() =>
+      Boolean(document.querySelector('[data-linkedin-scroll-root]')),
     );
 
-  for (
-    let iteration = 0;
-    iteration < maxSteps;
-    iteration++
-  ) {
-    const markerExists =
-      await page.evaluate(
-        () =>
-          Boolean(
-            document.querySelector(
-              "[data-linkedin-scroll-root]"
-            )
-          )
-      );
-
     if (!markerExists) {
-      scrollInfo =
-        await detectScrollContainer(
-          page
-        );
+      scrollInfo = await detectScrollContainer(page);
 
       if (!scrollInfo) {
         break;
       }
     }
 
-    await page.evaluate(
-      (amount) => {
-        const scroller =
-          document.querySelector(
-            "[data-linkedin-scroll-root]"
-          );
+    await page.evaluate((amount) => {
+      const scroller = document.querySelector('[data-linkedin-scroll-root]');
 
-        if (scroller) {
-          scroller.scrollTop +=
-            amount;
-        }
-      },
-      step
-    );
+      if (scroller) {
+        scroller.scrollTop += amount;
+      }
+    }, step);
 
     await sleep(delayMs);
 
-    const state =
-      await page.evaluate(() => {
-        const scroller =
-          document.querySelector(
-            "[data-linkedin-scroll-root]"
-          );
+    const state = await page.evaluate(() => {
+      const scroller = document.querySelector('[data-linkedin-scroll-root]');
 
-        if (!scroller) {
-          return null;
-        }
+      if (!scroller) {
+        return null;
+      }
 
-        return {
-          top:
-            scroller.scrollTop,
+      return {
+        top: scroller.scrollTop,
 
-          scrollHeight:
-            scroller.scrollHeight,
+        scrollHeight: scroller.scrollHeight,
 
-          clientHeight:
-            scroller.clientHeight,
+        clientHeight: scroller.clientHeight,
 
-          mainLength:
-            document.querySelector(
-              "main"
-            )?.innerText.length ||
-            0,
-        };
-      });
+        mainLength: document.querySelector('main')?.innerText.length || 0,
+      };
+    });
 
     if (!state) {
-      scrollInfo =
-        await detectScrollContainer(
-          page
-        );
+      scrollInfo = await detectScrollContainer(page);
 
       if (!scrollInfo) {
         break;
@@ -914,76 +630,48 @@ async function hydrateScroll(
       continue;
     }
 
-    const atBottom =
-      state.top +
-        state.clientHeight >=
-      state.scrollHeight -
-        100;
+    const atBottom = state.top + state.clientHeight >= state.scrollHeight - 100;
 
-    if (
-      label
-        .toLowerCase()
-        .includes("skills")
-    ) {
+    if (label.toLowerCase().includes('skills')) {
       console.log(
-        `[${label} ${
-          iteration + 1
-        }] top=${Math.round(
-          state.top
-        )} height=${state.scrollHeight} text=${state.mainLength}`
+        `[${label} ${iteration + 1}] top=${Math.round(
+          state.top,
+        )} height=${state.scrollHeight} text=${state.mainLength}`,
       );
     }
 
     if (!atBottom) {
       stableRounds = 0;
 
-      previousHeight =
-        state.scrollHeight;
+      previousHeight = state.scrollHeight;
 
-      previousMainLength =
-        state.mainLength;
+      previousMainLength = state.mainLength;
 
       continue;
     }
 
-    await sleep(
-      bottomWaitMs
-    );
+    await sleep(bottomWaitMs);
 
-    const waited =
-      await page.evaluate(() => {
-        const scroller =
-          document.querySelector(
-            "[data-linkedin-scroll-root]"
-          );
+    const waited = await page.evaluate(() => {
+      const scroller = document.querySelector('[data-linkedin-scroll-root]');
 
-        if (!scroller) {
-          return null;
-        }
+      if (!scroller) {
+        return null;
+      }
 
-        return {
-          top:
-            scroller.scrollTop,
+      return {
+        top: scroller.scrollTop,
 
-          scrollHeight:
-            scroller.scrollHeight,
+        scrollHeight: scroller.scrollHeight,
 
-          clientHeight:
-            scroller.clientHeight,
+        clientHeight: scroller.clientHeight,
 
-          mainLength:
-            document.querySelector(
-              "main"
-            )?.innerText.length ||
-            0,
-        };
-      });
+        mainLength: document.querySelector('main')?.innerText.length || 0,
+      };
+    });
 
     if (!waited) {
-      scrollInfo =
-        await detectScrollContainer(
-          page
-        );
+      scrollInfo = await detectScrollContainer(page);
 
       if (!scrollInfo) {
         break;
@@ -993,21 +681,15 @@ async function hydrateScroll(
     }
 
     const hydrated =
-      waited.scrollHeight >
-        previousHeight ||
-      waited.mainLength >
-        previousMainLength;
+      waited.scrollHeight > previousHeight ||
+      waited.mainLength > previousMainLength;
 
-    previousHeight =
-      waited.scrollHeight;
+    previousHeight = waited.scrollHeight;
 
-    previousMainLength =
-      waited.mainLength;
+    previousMainLength = waited.mainLength;
 
     if (hydrated) {
-      console.log(
-        `${label}: new batch hydrated — continuing`
-      );
+      console.log(`${label}: new batch hydrated — continuing`);
 
       stableRounds = 0;
 
@@ -1017,54 +699,34 @@ async function hydrateScroll(
     stableRounds++;
 
     console.log(
-      `${label}: bottom stable ${stableRounds}/${stableBottomRounds}`
+      `${label}: bottom stable ${stableRounds}/${stableBottomRounds}`,
     );
 
-    if (
-      stableRounds >=
-      stableBottomRounds
-    ) {
+    if (stableRounds >= stableBottomRounds) {
       break;
     }
   }
 
-  await sleep(
-    bottomWaitMs
-  );
+  await sleep(bottomWaitMs);
 
-  const final =
-    await page.evaluate(() => {
-      const scroller =
-        document.querySelector(
-          "[data-linkedin-scroll-root]"
-        );
+  const final = await page.evaluate(() => {
+    const scroller = document.querySelector('[data-linkedin-scroll-root]');
 
-      return {
-        top:
-          scroller?.scrollTop ||
-          0,
+    return {
+      top: scroller?.scrollTop || 0,
 
-        scrollHeight:
-          scroller?.scrollHeight ||
-          0,
+      scrollHeight: scroller?.scrollHeight || 0,
 
-        mainLength:
-          document.querySelector(
-            "main"
-          )?.innerText.length ||
-          0,
-      };
-    });
+      mainLength: document.querySelector('main')?.innerText.length || 0,
+    };
+  });
 
   console.log(
-    `${label} hydration complete — top=${final.top}, scrollHeight=${final.scrollHeight}, mainText=${final.mainLength}`
+    `${label} hydration complete — top=${final.top}, scrollHeight=${final.scrollHeight}, mainText=${final.mainLength}`,
   );
 
   await page.evaluate(() => {
-    const scroller =
-      document.querySelector(
-        "[data-linkedin-scroll-root]"
-      );
+    const scroller = document.querySelector('[data-linkedin-scroll-root]');
 
     if (scroller) {
       scroller.scrollTop = 0;
@@ -1078,135 +740,63 @@ async function hydrateScroll(
    SECTION COLLECTION
    ========================================================= */
 
-async function collectSections(
-  page
-) {
-  return page
-    .locator("section")
-    .evaluateAll((elements) =>
-      elements
-        .map(
-          (
-            section,
-            index
-          ) => {
-            const headings =
-              Array.from(
-                section.querySelectorAll(
-                  "h1,h2,h3,h4,[role='heading']"
-                )
-              )
-                .map((el) =>
-                  el.innerText
-                    ?.replace(
-                      /\s+/g,
-                      " "
-                    )
-                    .trim()
-                )
-                .filter(Boolean);
-
-            const links =
-              Array.from(
-                section.querySelectorAll(
-                  "a[href]"
-                )
-              )
-                .map((a) => ({
-                  text:
-                    a.innerText
-                      ?.trim() ||
-                    null,
-
-                  href:
-                    a.href ||
-                    null,
-                }))
-                .filter(
-                  (link) =>
-                    link.text ||
-                    link.href
-                );
-
-            const images =
-              Array.from(
-                section.querySelectorAll(
-                  "img"
-                )
-              )
-                .map((img) => ({
-                  alt:
-                    img.alt ||
-                    null,
-
-                  src:
-                    img.currentSrc ||
-                    img.src ||
-                    null,
-
-                  width:
-                    img.naturalWidth ||
-                    null,
-
-                  height:
-                    img.naturalHeight ||
-                    null,
-                }))
-                .filter(
-                  (img) =>
-                    img.src
-                );
-
-            return {
-              index,
-
-              primaryHeading:
-                headings[0] ||
-                null,
-
-              headings,
-
-              text:
-                section.innerText
-                  ?.trim() ||
-                "",
-
-              links,
-
-              images,
-            };
-          }
+async function collectSections(page) {
+  return page.locator('section').evaluateAll((elements) =>
+    elements
+      .map((section, index) => {
+        const headings = Array.from(
+          section.querySelectorAll("h1,h2,h3,h4,[role='heading']"),
         )
-        .filter(
-          (section) =>
-            section.text.length >
-            0
-        )
-    );
+          .map((el) => el.innerText?.replace(/\s+/g, ' ').trim())
+          .filter(Boolean);
+
+        const links = Array.from(section.querySelectorAll('a[href]'))
+          .map((a) => ({
+            text: a.innerText?.trim() || null,
+
+            href: a.href || null,
+          }))
+          .filter((link) => link.text || link.href);
+
+        const images = Array.from(section.querySelectorAll('img'))
+          .map((img) => ({
+            alt: img.alt || null,
+
+            src: img.currentSrc || img.src || null,
+
+            width: img.naturalWidth || null,
+
+            height: img.naturalHeight || null,
+          }))
+          .filter((img) => img.src);
+
+        return {
+          index,
+
+          primaryHeading: headings[0] || null,
+
+          headings,
+
+          text: section.innerText?.trim() || '',
+
+          links,
+
+          images,
+        };
+      })
+      .filter((section) => section.text.length > 0),
+  );
 }
 
-function getMainSection(
-  sections,
-  heading
-) {
-  const target =
-    heading.toLowerCase();
+function getMainSection(sections, heading) {
+  const target = heading.toLowerCase();
 
   return (
-    sections.find(
-      (section) => {
-        const h =
-          section.primaryHeading
-            ?.toLowerCase();
+    sections.find((section) => {
+      const h = section.primaryHeading?.toLowerCase();
 
-        return (
-          h === target ||
-          h?.startsWith(
-            `${target} (`
-          )
-        );
-      }
-    ) || null
+      return h === target || h?.startsWith(`${target} (`);
+    }) || null
   );
 }
 
@@ -1214,203 +804,134 @@ function getMainSection(
    HEADER
    ========================================================= */
 
-function findHeaderSection(
-  sections,
-  expectedName
-) {
-  const normalizedName =
-    normalize(
-      expectedName
-    );
+export function findHeaderSection(sections, expectedName) {
+  const normalizedName = normalize(expectedName);
 
-  const candidates =
-    sections.filter(
-      (section) => {
-        const heading =
-          normalize(
-            section.primaryHeading
-          );
+  const candidates = sections
+    .map((section) => {
+      const headings =
+        section.headings || [section.primaryHeading].filter(Boolean);
 
-        const hasCorrectName =
-          heading ===
-          normalizedName;
+      const hasCorrectName =
+        headings.some((heading) => normalize(heading) === normalizedName) ||
+        lines(section.text)
+          .slice(0, 6)
+          .some((line) => normalize(line) === normalizedName);
 
-        const hasContactInfo =
-          /\bContact info\b/i.test(
-            section.text
-          );
+      const hasContactInfo = /\bContact info\b/i.test(section.text);
 
-        const hasLargeImage =
-          section.images.some(
-            (img) =>
-              img.src?.includes(
-                "profile-displayphoto"
-              ) &&
-              (img.width || 0) >=
-                200
-          );
+      const hasProfileImage = (section.images || []).some(
+        (img) =>
+          /profile-displayphoto/i.test(img.src || '') ||
+          normalize(img.alt) === normalizedName,
+      );
 
-        return (
-          hasCorrectName &&
-          hasContactInfo &&
-          hasLargeImage
-        );
-      }
-    );
+      return {
+        section,
+        score:
+          (hasCorrectName ? 8 : 0) +
+          (hasContactInfo ? 2 : 0) +
+          (hasProfileImage ? 2 : 0) +
+          (/followers|connections/i.test(section.text) ? 1 : 0),
+      };
+    })
+    .filter((candidate) => candidate.score >= 8);
 
   candidates.sort(
     (a, b) =>
-      a.text.length -
-      b.text.length
+      b.score - a.score || a.section.text.length - b.section.text.length,
   );
 
-  return candidates[0] || null;
+  return candidates[0]?.section || null;
 }
 
-export function parseHeader(
-  section,
-  url
-) {
+export function parseHeader(section, url, expectedName = null) {
   if (!section) {
     return {};
   }
 
-  const data =
-    lines(
-      section.text
-    );
+  const data = lines(section.text);
 
-  const name =
-    section.primaryHeading ||
-    data[0];
+  const name = expectedName || section.primaryHeading || data[0];
 
-  let index =
-    data.findIndex(
-      (line) =>
-        line === name
-    ) + 1;
+  const nameIndex = data.findIndex(
+    (line) => normalize(line) === normalize(name),
+  );
 
-  let pronouns =
-    null;
+  let index = nameIndex >= 0 ? nameIndex + 1 : 0;
 
-  if (
-    isPronouns(
-      data[index]
-    )
-  ) {
-    pronouns =
-      data[index++];
+  let pronouns = null;
+
+  if (isPronouns(data[index])) {
+    pronouns = data[index++];
   }
 
-  while (
-    index <
-      data.length &&
-    isConnectionDegree(
-      data[index]
-    )
-  ) {
+  while (index < data.length && isConnectionDegree(data[index])) {
     index++;
   }
 
-  const headline =
-    data[index++] ||
-    null;
+  const headline = data[index++] || null;
 
-  let location =
-    null;
+  let location = null;
 
-  while (
-    index <
-    data.length
-  ) {
-    const value =
-      data[index];
+  while (index < data.length) {
+    const value = data[index];
 
-    if (
-      /^contact info$/i.test(
-        value
-      )
-    ) {
+    if (/^contact info$/i.test(value)) {
       break;
     }
 
-    if (
-      isConnectionDegree(
-        value
-      ) ||
-      /followers|connections/i.test(
-        value
-      )
-    ) {
+    if (isConnectionDegree(value) || /followers|connections/i.test(value)) {
       index++;
 
       continue;
     }
 
-    location =
-      value;
+    location = value;
 
     break;
   }
 
-  const contactIndex =
-    data.findIndex(
-      (line) =>
-        /^contact info$/i.test(
-          line
-        )
-    );
+  const contactIndex = data.findIndex((line) => /^contact info$/i.test(line));
 
-  let currentCompany =
-    null;
+  let currentCompany = null;
 
-  if (
-    contactIndex >= 0
-  ) {
-    for (
-      let i =
-        contactIndex + 1;
-      i < data.length;
-      i++
-    ) {
-      const value =
-        data[i];
+  if (contactIndex >= 0) {
+    for (let i = contactIndex + 1; i < data.length; i++) {
+      const value = data[i];
 
       if (
         !value ||
-        isConnectionDegree(
-          value
-        ) ||
-        /followers|connections/i.test(
-          value
-        )
+        isConnectionDegree(value) ||
+        /followers|connections/i.test(value)
       ) {
         continue;
       }
 
-      currentCompany =
-        value;
+      currentCompany = value;
 
       break;
     }
   }
 
+  currentCompany ||= clean(
+    section.links
+      ?.find((link) =>
+        /linkedin\.com\/(?:company|school)\//i.test(link.href || ''),
+      )
+      ?.text?.split('\n')[0],
+  );
+
   const profileImage =
     section.images.find(
       (img) =>
-        img.src?.includes(
-          "profile-displayphoto"
-        ) &&
-        (img.width || 0) >=
-          200
+        /profile-displayphoto/i.test(img.src || '') ||
+        normalize(img.alt) === normalize(name),
     )?.src || null;
 
   const coverImage =
-    section.images.find(
-      (img) =>
-        img.src?.includes(
-          "profile-displaybackgroundimage"
-        )
+    section.images.find((img) =>
+      img.src?.includes('profile-displaybackgroundimage'),
     )?.src || null;
 
   return {
@@ -1420,27 +941,16 @@ export function parseHeader(
     location,
     currentCompany,
 
-    followers:
-      extractCount(
-        section.text,
-        "followers"
-      ),
+    followers: extractCount(section.text, 'followers'),
 
-    connections:
-      extractCount(
-        section.text,
-        "connections"
-      ),
+    connections: extractCount(section.text, 'connections'),
 
-    profileUrl:
-      url,
+    profileUrl: url,
 
     images: {
-      profile:
-        profileImage,
+      profile: profileImage,
 
-      cover:
-        coverImage,
+      cover: coverImage,
     },
   };
 }
@@ -1457,31 +967,14 @@ export function parseAbout(section) {
     };
   }
 
-  const text =
-    section.text
-      .replace(
-        /^About\s*/i,
-        ""
-      )
-      .trim();
+  const text = section.text.replace(/^About\s*/i, '').trim();
 
-  const chunks =
-    text.split(
-      /\n\s*Top skills\s*\n/i
-    );
+  const chunks = text.split(/\n\s*Top skills\s*\n/i);
 
   return {
-    about:
-      clean(
-        chunks[0]
-      ),
+    about: clean(chunks[0]),
 
-    topSkills:
-      chunks[1]
-        ?.split("•")
-        .map(clean)
-        .filter(Boolean) ||
-      [],
+    topSkills: chunks[1]?.split('•').map(clean).filter(Boolean) || [],
   };
 }
 
@@ -1489,63 +982,35 @@ export function parseAbout(section) {
    SHOW MORE
    ========================================================= */
 
-async function clickShowMoreInsideSection(
-  page,
-  prefix
-) {
+async function clickShowMoreInsideSection(page, prefix) {
   let didClick = false;
 
-  for (
-    let attempt = 0;
-    attempt < 5;
-    attempt++
-  ) {
-    const clicked =
-      await page.evaluate(
-        (prefix) => {
-          const section =
-            Array.from(
-              document.querySelectorAll(
-                "section"
-              )
-            ).find(
-              (candidate) =>
-                candidate.innerText
-                  ?.trim()
-                  .toLowerCase()
-                  .startsWith(
-                    prefix.toLowerCase()
-                  )
-            );
-
-          if (!section) {
-            return false;
-          }
-
-          const button =
-            Array.from(
-              section.querySelectorAll(
-                "button"
-              )
-            ).find(
-              (candidate) =>
-                /^show more$/i.test(
-                  candidate
-                    .innerText
-                    ?.trim()
-                )
-            );
-
-          if (!button) {
-            return false;
-          }
-
-          button.click();
-
-          return true;
-        },
-        prefix
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const clicked = await page.evaluate((prefix) => {
+      const section = Array.from(document.querySelectorAll('section')).find(
+        (candidate) =>
+          candidate.innerText
+            ?.trim()
+            .toLowerCase()
+            .startsWith(prefix.toLowerCase()),
       );
+
+      if (!section) {
+        return false;
+      }
+
+      const button = Array.from(section.querySelectorAll('button')).find(
+        (candidate) => /^show more$/i.test(candidate.innerText?.trim()),
+      );
+
+      if (!button) {
+        return false;
+      }
+
+      button.click();
+
+      return true;
+    }, prefix);
 
     if (!clicked) {
       break;
@@ -1553,9 +1018,7 @@ async function clickShowMoreInsideSection(
 
     didClick = true;
 
-    console.log(
-      `${prefix}: clicked Show more`
-    );
+    console.log(`${prefix}: clicked Show more`);
 
     await sleep(2000);
   }
@@ -1567,59 +1030,32 @@ async function clickShowMoreInsideSection(
    V11 DOM SINGLE-DATE EXPERIENCE DISCOVERY
    ========================================================= */
 
-async function collectDomSingleDateExperienceRoles(
-  page
-) {
+async function collectDomSingleDateExperienceRoles(page) {
   return page.evaluate(() => {
-    const main =
-      document.querySelector(
-        "main"
-      );
+    const main = document.querySelector('main');
 
     if (!main) {
       return [];
     }
 
-    const cleanText = (
+    const cleanText = (value) =>
       value
-    ) =>
-      value
-        ?.replace(
-          /\u200b/g,
-          ""
-        )
-        .replace(
-          /\r/g,
-          ""
-        )
-        .replace(
-          /[ \t]+/g,
-          " "
-        )
-        .trim() ||
-      null;
+        ?.replace(/\u200b/g, '')
+        .replace(/\r/g, '')
+        .replace(/[ \t]+/g, ' ')
+        .trim() || null;
 
-    const getLines = (
-      text
-    ) =>
-      (
-        text || ""
-      )
-        .split("\n")
-        .map(
-          cleanText
-        )
+    const getLines = (text) =>
+      (text || '')
+        .split('\n')
+        .map(cleanText)
         .filter(Boolean)
-        .filter(
-          (line) =>
-            line !== "·"
-        );
+        .filter((line) => line !== '·');
 
     const singleDateRegex =
       /^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\s+\d{4}(?:\s*·\s*\d+\s+(?:mo|mos|yr|yrs|wk|wks|day|days))?$/i;
 
-    const locationRegex =
-      /(?:hybrid|remote|on-site|onsite)$/i;
+    const locationRegex = /(?:hybrid|remote|on-site|onsite)$/i;
 
     const employmentRegex =
       /(full-time|part-time|contract|self-employed|freelance|internship|apprenticeship|seasonal)/i;
@@ -1627,25 +1063,17 @@ async function collectDomSingleDateExperienceRoles(
     const badTitleRegex =
       /^(?:experience|certificate|skills?|show more|show all.*|see all.*)$/i;
 
-    const organizationSelector =
-      'a[href*="/company/"], a[href*="/school/"]';
+    const organizationSelector = 'a[href*="/company/"], a[href*="/school/"]';
 
-    function canonicalize(
-      href
-    ) {
+    function canonicalize(href) {
       if (!href) {
         return null;
       }
 
       try {
-        const url =
-          new URL(href);
+        const url = new URL(href);
 
-        const pathname =
-          url.pathname.replace(
-            /\/+$/,
-            ""
-          );
+        const pathname = url.pathname.replace(/\/+$/, '');
 
         return `${url.origin}${pathname}/`;
       } catch {
@@ -1653,165 +1081,84 @@ async function collectDomSingleDateExperienceRoles(
       }
     }
 
-    function splitMeta(
-      value
-    ) {
-      const pieces =
-        (
-          value || ""
-        )
-          .split("·")
-          .map(
-            cleanText
-          )
-          .filter(Boolean);
+    function splitMeta(value) {
+      const pieces = (value || '').split('·').map(cleanText).filter(Boolean);
 
       const employmentType =
-        pieces.find(
-          (piece) =>
-            employmentRegex.test(
-              piece
-            )
-        ) || null;
+        pieces.find((piece) => employmentRegex.test(piece)) || null;
 
       return {
-        organization:
-          pieces[0] ||
-          null,
+        organization: pieces[0] || null,
 
         employmentType,
       };
     }
 
-    function parseSignature(
-      element
-    ) {
-      const text =
-        element.innerText
-          ?.trim();
+    function parseSignature(element) {
+      const text = element.innerText?.trim();
 
-      if (
-        !text ||
-        text.length >
-          4000
-      ) {
+      if (!text || text.length > 4000) {
         return null;
       }
 
-      const ls =
-        getLines(text);
+      const ls = getLines(text);
 
-      if (
-        ls.length < 3 ||
-        ls.length > 50
-      ) {
+      if (ls.length < 3 || ls.length > 50) {
         return null;
       }
 
-      const dateIndex =
-        ls.findIndex(
-          (line) =>
-            singleDateRegex.test(
-              line
-            )
-        );
+      const dateIndex = ls.findIndex((line) => singleDateRegex.test(line));
 
-      if (
-        dateIndex < 1 ||
-        dateIndex > 10
-      ) {
+      if (dateIndex < 1 || dateIndex > 10) {
         return null;
       }
 
-      const dateLine =
-        ls[
-          dateIndex
-        ];
+      const dateLine = ls[dateIndex];
 
       const location =
         ls
-          .slice(
-            dateIndex + 1,
-            dateIndex + 5
-          )
-          .find(
-            (line) =>
-              locationRegex.test(
-                line
-              )
-          ) || null;
+          .slice(dateIndex + 1, dateIndex + 5)
+          .find((line) => locationRegex.test(line)) || null;
 
       if (!location) {
         return null;
       }
 
-      let title =
-        null;
+      let title = null;
 
-      let organization =
-        null;
+      let organization = null;
 
-      let employmentType =
-        null;
+      let employmentType = null;
 
-      let organizationMeta =
-        null;
+      let organizationMeta = null;
 
-      if (
-        dateIndex >= 2 &&
-        employmentRegex.test(
-          ls[
-            dateIndex - 1
-          ]
-        )
-      ) {
-        title =
-          ls[
-            dateIndex - 2
-          ];
+      if (dateIndex >= 2 && employmentRegex.test(ls[dateIndex - 1])) {
+        title = ls[dateIndex - 2];
 
-        organizationMeta =
-          ls[
-            dateIndex - 1
-          ];
+        organizationMeta = ls[dateIndex - 1];
 
-        const parsed =
-          splitMeta(
-            organizationMeta
-          );
+        const parsed = splitMeta(organizationMeta);
 
-        organization =
-          parsed.organization;
+        organization = parsed.organization;
 
-        employmentType =
-          parsed.employmentType;
+        employmentType = parsed.employmentType;
       } else {
-        title =
-          ls[
-            dateIndex - 1
-          ];
+        title = ls[dateIndex - 1];
       }
 
       if (
         !title ||
         title.length > 120 ||
-        badTitleRegex.test(
-          title
-        ) ||
-        singleDateRegex.test(
-          title
-        ) ||
-        locationRegex.test(
-          title
-        )
+        badTitleRegex.test(title) ||
+        singleDateRegex.test(title) ||
+        locationRegex.test(title)
       ) {
         return null;
       }
 
       return {
         text,
-        lines:
-          ls,
+        lines: ls,
 
         dateIndex,
 
@@ -1831,258 +1178,147 @@ async function collectDomSingleDateExperienceRoles(
 
     const results = [];
 
-    const allElements =
-      Array.from(
-        main.querySelectorAll("*")
-      );
+    const allElements = Array.from(main.querySelectorAll('*'));
 
-    for (
-      const element of
-        allElements
-    ) {
-      const signature =
-        parseSignature(
-          element
-        );
+    for (const element of allElements) {
+      const signature = parseSignature(element);
 
       if (!signature) {
         continue;
       }
 
-      const childHasSignature =
-        Array.from(
-          element.children
-        ).some(
-          (child) =>
-            Boolean(
-              parseSignature(
-                child
-              )
-            )
-        );
+      const childHasSignature = Array.from(element.children).some((child) =>
+        Boolean(parseSignature(child)),
+      );
 
-      if (
-        childHasSignature
-      ) {
+      if (childHasSignature) {
         continue;
       }
 
-      let node =
-        element;
+      let node = element;
 
-      let organizationUrl =
-        null;
+      let organizationUrl = null;
 
-      let anchorLines =
-        [];
+      let anchorLines = [];
 
-      let organizationDepth =
-        null;
+      let organizationDepth = null;
 
-      for (
-        let depth = 0;
-        depth <= 8;
-        depth++
-      ) {
-        if (
-          !node ||
-          node === main
-        ) {
+      for (let depth = 0; depth <= 8; depth++) {
+        if (!node || node === main) {
           break;
         }
 
-        const anchors =
-          Array.from(
-            node.querySelectorAll(
-              organizationSelector
-            )
-          );
+        const anchors = Array.from(node.querySelectorAll(organizationSelector));
 
-        const byUrl =
-          new Map();
+        const byUrl = new Map();
 
-        for (
-          const anchor of
-            anchors
-        ) {
-          const url =
-            canonicalize(
-              anchor.href
-            );
+        for (const anchor of anchors) {
+          const url = canonicalize(anchor.href);
 
           if (!url) {
             continue;
           }
 
-          if (
-            !byUrl.has(
-              url
-            )
-          ) {
-            byUrl.set(
-              url,
-              anchor
-            );
+          if (!byUrl.has(url)) {
+            byUrl.set(url, anchor);
           }
         }
 
-        if (
-          byUrl.size === 1
-        ) {
-          const [
-            url,
-            anchor,
-          ] =
-            Array.from(
-              byUrl.entries()
-            )[0];
+        if (byUrl.size === 1) {
+          const [url, anchor] = Array.from(byUrl.entries())[0];
 
-          organizationUrl =
-            url;
+          organizationUrl = url;
 
-          anchorLines =
-            getLines(
-              anchor.innerText
-            );
+          anchorLines = getLines(anchor.innerText);
 
-          organizationDepth =
-            depth;
+          organizationDepth = depth;
 
           break;
         }
 
-        if (
-          byUrl.size > 1
-        ) {
+        if (byUrl.size > 1) {
           break;
         }
 
-        node =
-          node.parentElement;
+        node = node.parentElement;
       }
 
-      if (
-        !organizationUrl
-      ) {
+      if (!organizationUrl) {
         continue;
       }
 
-      let organization =
-        signature.organization;
+      let organization = signature.organization;
 
-      let employmentType =
-        signature.employmentType;
+      let employmentType = signature.employmentType;
 
-      if (
-        !organization
-      ) {
-        const anchorMeta =
-          anchorLines.find(
-            (line) =>
-              employmentRegex.test(
-                line
-              )
-          );
+      if (!organization) {
+        const anchorMeta = anchorLines.find((line) =>
+          employmentRegex.test(line),
+        );
 
-        if (
-          anchorMeta
-        ) {
-          const parsed =
-            splitMeta(
-              anchorMeta
-            );
+        if (anchorMeta) {
+          const parsed = splitMeta(anchorMeta);
 
-          organization =
-            parsed.organization;
+          organization = parsed.organization;
 
-          employmentType =
-            employmentType ||
-            parsed.employmentType;
+          employmentType = employmentType || parsed.employmentType;
         }
       }
 
-      if (
-        !organization
-      ) {
+      if (!organization) {
         organization =
           anchorLines.find(
             (line) =>
-              line !==
-                signature.title &&
-              !singleDateRegex.test(
-                line
-              ) &&
-              !locationRegex.test(
-                line
-              ) &&
-              !badTitleRegex.test(
-                line
-              )
+              line !== signature.title &&
+              !singleDateRegex.test(line) &&
+              !locationRegex.test(line) &&
+              !badTitleRegex.test(line),
           ) || null;
       }
 
-      if (
-        !organization
-      ) {
+      if (!organization) {
         continue;
       }
 
       results.push({
-        title:
-          signature.title,
+        title: signature.title,
 
         organization,
 
-        organizationMeta:
-          signature.organizationMeta,
+        organizationMeta: signature.organizationMeta,
 
         employmentType,
 
-        dateLine:
-          signature.dateLine,
+        dateLine: signature.dateLine,
 
-        location:
-          signature.location,
+        location: signature.location,
 
         organizationUrl,
 
         organizationDepth,
 
-        text:
-          signature.text,
+        text: signature.text,
       });
     }
 
-    const seen =
-      new Set();
+    const seen = new Set();
 
-    const deduped =
-      [];
+    const deduped = [];
 
-    for (
-      const item of
-        results
-    ) {
-      const key =
-        [
-          item.organizationUrl,
-          item.title
-            .toLowerCase(),
-          item.dateLine
-            .toLowerCase(),
-        ].join("|");
+    for (const item of results) {
+      const key = [
+        item.organizationUrl,
+        item.title.toLowerCase(),
+        item.dateLine.toLowerCase(),
+      ].join('|');
 
-      if (
-        seen.has(key)
-      ) {
+      if (seen.has(key)) {
         continue;
       }
 
       seen.add(key);
 
-      deduped.push(
-        item
-      );
+      deduped.push(item);
     }
 
     return deduped;
@@ -2093,42 +1329,57 @@ async function collectDomSingleDateExperienceRoles(
    DETAIL PAGE LOADING
    ========================================================= */
 
+export function matchesDetailSection(section, expectedPrefix) {
+  const target = normalize(expectedPrefix);
+
+  const headings = section.headings || [];
+
+  if (
+    headings.some((heading) => {
+      const value = normalize(heading);
+
+      return (
+        value === target ||
+        value.startsWith(`${target} (`) ||
+        value.endsWith(` ${target}`)
+      );
+    })
+  ) {
+    return true;
+  }
+
+  return lines(section.text)
+    .slice(0, 5)
+    .some((line) => {
+      const value = normalize(line);
+
+      return (
+        value === target ||
+        value.startsWith(`${target} (`) ||
+        value.endsWith(` ${target}`)
+      );
+    });
+}
+
 async function loadDetailSection(
   context,
   url,
   expectedPrefix,
   scrollConfig,
-  assertSession
+  assertSession,
 ) {
-  const page =
-    await context.newPage();
+  const page = await context.newPage();
 
   try {
-    console.log(
-      `Opening ${expectedPrefix}...`
-    );
+    console.log(`Opening ${expectedPrefix}...`);
 
-    await navigateLinkedIn(
-      page,
-      url
-    );
+    await navigateLinkedIn(page, url);
 
-    await assertSession?.(
-      page,
-      url
-    );
+    await assertSession?.(page, url);
 
-    await hydrateScroll(
-      page,
-      scrollConfig,
-      expectedPrefix
-    );
+    await hydrateScroll(page, scrollConfig, expectedPrefix);
 
-    const expanded =
-      await clickShowMoreInsideSection(
-      page,
-      expectedPrefix
-    );
+    const expanded = await clickShowMoreInsideSection(page, expectedPrefix);
 
     if (expanded) {
       await hydrateScroll(
@@ -2136,177 +1387,95 @@ async function loadDetailSection(
         {
           ...scrollConfig,
 
-          maxSteps:
-            Math.min(
-              scrollConfig.maxSteps,
-              60
-            ),
+          maxSteps: Math.min(scrollConfig.maxSteps, 60),
         },
-        `${expectedPrefix} post-expand`
+        `${expectedPrefix} post-expand`,
       );
     }
 
-    let domSingleDateRoles =
-      [];
+    let domSingleDateRoles = [];
 
-    if (
-      expectedPrefix ===
-      "Experience"
-    ) {
-      domSingleDateRoles =
-        await collectDomSingleDateExperienceRoles(
-          page
-        );
+    if (expectedPrefix === 'Experience') {
+      domSingleDateRoles = await collectDomSingleDateExperienceRoles(page);
 
       console.log(
-        `Experience DOM single-date candidates: ${domSingleDateRoles.length}`
+        `Experience DOM single-date candidates: ${domSingleDateRoles.length}`,
       );
 
-      if (
-        domSingleDateRoles.length
-      ) {
+      if (domSingleDateRoles.length) {
         console.table(
-          domSingleDateRoles.map(
-            (item) => ({
-              title:
-                item.title,
+          domSingleDateRoles.map((item) => ({
+            title: item.title,
 
-              organization:
-                item.organization,
+            organization: item.organization,
 
-              employmentType:
-                item.employmentType,
+            employmentType: item.employmentType,
 
-              date:
-                item.dateLine,
+            date: item.dateLine,
 
-              depth:
-                item.organizationDepth,
-            })
-          )
+            depth: item.organizationDepth,
+          })),
         );
       }
     }
 
-    const candidates =
-      await page
-        .locator("section")
-        .evaluateAll(
-          (
-            sections,
-            prefix
-          ) =>
-            sections
-              .map(
-                (
-                  section,
-                  index
-                ) => ({
-                  index,
+    const sections = await page.locator('section').evaluateAll((sections) =>
+      sections.map((section, index) => ({
+        index,
 
-                  text:
-                    section.innerText
-                      ?.trim() ||
-                    "",
+        headings: Array.from(
+          section.querySelectorAll("h1,h2,h3,h4,[role='heading']"),
+        )
+          .map((heading) => heading.innerText?.replace(/\s+/g, ' ').trim())
+          .filter(Boolean),
 
-                  links:
-                    Array.from(
-                      section.querySelectorAll(
-                        "a[href]"
-                      )
-                    )
-                      .map(
-                        (a) => ({
-                          text:
-                            a.innerText
-                              ?.trim() ||
-                            null,
+        text: section.innerText?.trim() || '',
 
-                          href:
-                            a.href ||
-                            null,
-                        })
-                      )
-                      .filter(
-                        (link) =>
-                          link.text ||
-                          link.href
-                      ),
+        links: Array.from(section.querySelectorAll('a[href]'))
+          .map((a) => ({
+            text: a.innerText?.trim() || null,
 
-                  images:
-                    Array.from(
-                      section.querySelectorAll(
-                        "img"
-                      )
-                    )
-                      .map(
-                        (img) => ({
-                          alt:
-                            img.alt ||
-                            null,
+            href: a.href || null,
+          }))
+          .filter((link) => link.text || link.href),
 
-                          src:
-                            img.currentSrc ||
-                            img.src ||
-                            null,
-                        })
-                      )
-                      .filter(
-                        (img) =>
-                          img.src
-                      ),
-                })
-              )
-              .filter(
-                (section) =>
-                  section.text
-                    .toLowerCase()
-                    .startsWith(
-                      prefix.toLowerCase()
-                    )
-              ),
-          expectedPrefix
-        );
+        images: Array.from(section.querySelectorAll('img'))
+          .map((img) => ({
+            alt: img.alt || null,
 
-    if (
-      !candidates.length
-    ) {
+            src: img.currentSrc || img.src || null,
+          }))
+          .filter((img) => img.src),
+      })),
+    );
+
+    const candidates = sections.filter((section) =>
+      matchesDetailSection(section, expectedPrefix),
+    );
+
+    if (!candidates.length) {
       return null;
     }
 
-    candidates.sort(
-      (a, b) =>
-        a.text.length -
-        b.text.length
-    );
+    candidates.sort((a, b) => a.text.length - b.text.length);
 
-    const result =
-      candidates[0];
+    const result = candidates[0];
 
-    if (
-      expectedPrefix ===
-      "Experience"
-    ) {
-      result.domSingleDateRoles =
-        domSingleDateRoles;
+    if (expectedPrefix === 'Experience') {
+      result.domSingleDateRoles = domSingleDateRoles;
     }
 
     console.log(
-      `${expectedPrefix}: detail section found (${result.text.length} chars)`
+      `${expectedPrefix}: detail section found (${result.text.length} chars)`,
     );
 
     return result;
   } catch (error) {
-    if (
-      error?.code ===
-      "upstream_authentication_required"
-    ) {
+    if (error?.code === 'upstream_authentication_required') {
       throw error;
     }
 
-    console.log(
-      `${expectedPrefix} failed: ${error.message}`
-    );
+    console.log(`${expectedPrefix} failed: ${error.message}`);
 
     return null;
   } finally {
@@ -2318,46 +1487,24 @@ async function loadDetailSection(
    EXPERIENCE
    ========================================================= */
 
-function parseOrganizationHeader(
-  data
-) {
+function parseOrganizationHeader(data) {
   if (!data?.length) {
     return {};
   }
 
-  const organization =
-    data[0] ||
-    null;
+  const organization = data[0] || null;
 
-  let employmentType =
-    null;
+  let employmentType = null;
 
-  let location =
-    null;
+  let location = null;
 
-  for (
-    let i = 1;
-    i < data.length;
-    i++
-  ) {
-    if (
-      looksLikeEmploymentMeta(
-        data[i]
-      )
-    ) {
-      employmentType =
-        extractEmploymentType(
-          data[i]
-        );
+  for (let i = 1; i < data.length; i++) {
+    if (looksLikeEmploymentMeta(data[i])) {
+      employmentType = extractEmploymentType(data[i]);
     }
 
-    if (
-      looksLikeExplicitWorkLocation(
-        data[i]
-      )
-    ) {
-      location =
-        data[i];
+    if (looksLikeExplicitWorkLocation(data[i])) {
+      location = data[i];
     }
   }
 
@@ -2368,89 +1515,44 @@ function parseOrganizationHeader(
   };
 }
 
-function parseRoleAnchor(
-  link
-) {
-  const data =
-    lines(
-      link.text
-    );
+function parseRoleAnchor(link) {
+  const data = lines(link.text);
 
-  const dateIndex =
-    data.findIndex(
-      isDateRange
-    );
+  const dateIndex = data.findIndex(isDateRange);
 
-  if (
-    dateIndex < 1
-  ) {
+  if (dateIndex < 1) {
     return null;
   }
 
-  const title =
-    data[0] ||
-    null;
+  const title = data[0] || null;
 
-  let organization =
-    null;
+  let organization = null;
 
-  let employmentType =
-    null;
+  let employmentType = null;
 
-  let location =
-    null;
+  let location = null;
 
-  if (
-    dateIndex !== 1
-  ) {
-    const organizationMeta =
-      data[1];
+  if (dateIndex !== 1) {
+    const organizationMeta = data[1];
 
-    if (
-      organizationMeta
-    ) {
-      const pieces =
-        organizationMeta
-          .split("·")
-          .map(clean)
-          .filter(Boolean);
+    if (organizationMeta) {
+      const pieces = organizationMeta.split('·').map(clean).filter(Boolean);
 
-      organization =
-        pieces[0] ||
-        null;
+      organization = pieces[0] || null;
 
-      employmentType =
-        pieces.find(
-          looksLikeEmploymentMeta
-        ) ||
-        null;
+      employmentType = pieces.find(looksLikeEmploymentMeta) || null;
     }
   }
 
-  for (
-    let i =
-      dateIndex + 1;
-    i < data.length;
-    i++
-  ) {
-    if (
-      looksLikeExplicitWorkLocation(
-        data[i]
-      )
-    ) {
-      location =
-        data[i];
+  for (let i = dateIndex + 1; i < data.length; i++) {
+    if (looksLikeExplicitWorkLocation(data[i])) {
+      location = data[i];
 
       break;
     }
   }
 
-  const dates =
-    splitDateDuration(
-      data[
-        dateIndex
-      ]
-    );
+  const dates = splitDateDuration(data[dateIndex]);
 
   return {
     title,
@@ -2458,72 +1560,34 @@ function parseRoleAnchor(
     employmentType,
     location,
 
-    dateRange:
-      dates.dateRange,
+    dateRange: dates.dateRange,
 
-    duration:
-      dates.duration,
+    duration: dates.duration,
 
-    organizationUrl:
-      canonicalLinkedInEntityUrl(
-        link.href
-      ),
+    organizationUrl: canonicalLinkedInEntityUrl(link.href),
 
-    description:
-      null,
+    description: null,
 
-    _source:
-      "linked",
+    _source: 'linked',
 
-    _position:
-      null,
+    _position: null,
 
-    _datePosition:
-      null,
+    _datePosition: null,
   };
 }
 
-function findRolePosition(
-  sectionLines,
-  role,
-  startAt = 0
-) {
-  for (
-    let i = startAt;
-    i < sectionLines.length;
-    i++
-  ) {
-    if (
-      sectionLines[i] !==
-      role.title
-    ) {
+function findRolePosition(sectionLines, role, startAt = 0) {
+  for (let i = startAt; i < sectionLines.length; i++) {
+    if (sectionLines[i] !== role.title) {
       continue;
     }
 
-    const end =
-      Math.min(
-        sectionLines.length,
-        i + 10
-      );
+    const end = Math.min(sectionLines.length, i + 10);
 
-    for (
-      let j = i + 1;
-      j < end;
-      j++
-    ) {
-      const parsed =
-        splitDateDuration(
-          sectionLines[j]
-        );
+    for (let j = i + 1; j < end; j++) {
+      const parsed = splitDateDuration(sectionLines[j]);
 
-      if (
-        normalize(
-          parsed.dateRange
-        ) ===
-        normalize(
-          role.dateRange
-        )
-      ) {
+      if (normalize(parsed.dateRange) === normalize(role.dateRange)) {
         return {
           position: i,
           datePosition: j,
@@ -2538,9 +1602,7 @@ function findRolePosition(
   };
 }
 
-export function parseExperience(
-  section
-) {
+export function parseExperience(section) {
   if (!section) {
     return {
       organizations: [],
@@ -2554,326 +1616,157 @@ export function parseExperience(
     };
   }
 
-  const sectionLines =
-    lines(
-      section.text
-    ).filter(
-      (line) =>
-        !/^experience$/i.test(
-          line
-        )
-    );
+  const sectionLines = lines(section.text).filter(
+    (line) => !/^experience$/i.test(line),
+  );
 
-  const organizationLinks =
-    section.links.filter(
-      (link) =>
-        link.text &&
-        isLinkedInOrganizationUrl(
-          link.href
-        )
-    );
+  const organizationLinks = section.links.filter(
+    (link) => link.text && isLinkedInOrganizationUrl(link.href),
+  );
 
-  const organizationHeaders =
-    new Map();
+  const organizationHeaders = new Map();
 
-  for (
-    const link of
-      organizationLinks
-  ) {
-    const data =
-      lines(
-        link.text
-      );
+  for (const link of organizationLinks) {
+    const data = lines(link.text);
 
-    if (
-      data.some(
-        isExperienceDate
-      )
-    ) {
+    if (data.some(isExperienceDate)) {
       continue;
     }
 
-    const url =
-      canonicalLinkedInEntityUrl(
-        link.href
-      );
+    const url = canonicalLinkedInEntityUrl(link.href);
 
     if (!url) {
       continue;
     }
 
-    const parsed =
-      parseOrganizationHeader(
-        data
-      );
+    const parsed = parseOrganizationHeader(data);
 
-    if (
-      !parsed.organization
-    ) {
+    if (!parsed.organization) {
       continue;
     }
 
-    if (
-      !organizationHeaders.has(
-        url
-      )
-    ) {
-      organizationHeaders.set(
-        url,
-        parsed
-      );
+    if (!organizationHeaders.has(url)) {
+      organizationHeaders.set(url, parsed);
     }
   }
 
-  const linkedRoles =
-    organizationLinks
-      .filter(
-        (link) =>
-          lines(
-            link.text
-          ).some(
-            isDateRange
-          )
-      )
-      .map(
-        parseRoleAnchor
-      )
-      .filter(Boolean)
-      .map(
-        (role) => {
-          const header =
-            organizationHeaders.get(
-              role.organizationUrl
-            ) || {};
+  const linkedRoles = organizationLinks
+    .filter((link) => lines(link.text).some(isDateRange))
+    .map(parseRoleAnchor)
+    .filter(Boolean)
+    .map((role) => {
+      const header = organizationHeaders.get(role.organizationUrl) || {};
 
-          return {
-            ...role,
+      return {
+        ...role,
 
-            organization:
-              header.organization ||
-              role.organization ||
-              null,
+        organization: header.organization || role.organization || null,
 
-            employmentType:
-              header.employmentType ||
-              role.employmentType ||
-              null,
+        employmentType: header.employmentType || role.employmentType || null,
 
-            location:
-              role.location ||
-              header.location ||
-              null,
+        location: role.location || header.location || null,
 
-            organizationLocation:
-              header.location ||
-              null,
-          };
-        }
-      );
+        organizationLocation: header.location || null,
+      };
+    });
 
-  for (
-    const role of
-      linkedRoles
-  ) {
-    if (
-      !role.organizationUrl ||
-      !role.organization
-    ) {
+  for (const role of linkedRoles) {
+    if (!role.organizationUrl || !role.organization) {
       continue;
     }
 
-    if (
-      !organizationHeaders.has(
-        role.organizationUrl
-      )
-    ) {
-      organizationHeaders.set(
-        role.organizationUrl,
-        {
-          organization:
-            role.organization,
+    if (!organizationHeaders.has(role.organizationUrl)) {
+      organizationHeaders.set(role.organizationUrl, {
+        organization: role.organization,
 
-          employmentType:
-            role.employmentType ||
-            null,
+        employmentType: role.employmentType || null,
 
-          location:
-            role.location ||
-            null,
-        }
-      );
+        location: role.location || null,
+      });
     }
   }
 
-  for (
-    const candidate of
-      section.domSingleDateRoles ||
-      []
-  ) {
-    const url =
-      canonicalLinkedInEntityUrl(
-        candidate.organizationUrl
-      );
+  for (const candidate of section.domSingleDateRoles || []) {
+    const url = canonicalLinkedInEntityUrl(candidate.organizationUrl);
 
-    if (
-      !url ||
-      !candidate.organization
-    ) {
+    if (!url || !candidate.organization) {
       continue;
     }
 
-    const existing =
-      organizationHeaders.get(
-        url
-      );
+    const existing = organizationHeaders.get(url);
 
     if (!existing) {
-      organizationHeaders.set(
-        url,
-        {
-          organization:
-            candidate.organization,
+      organizationHeaders.set(url, {
+        organization: candidate.organization,
 
-          employmentType:
-            candidate.employmentType ||
-            null,
+        employmentType: candidate.employmentType || null,
 
-          location:
-            candidate.location ||
-            null,
-        }
-      );
+        location: candidate.location || null,
+      });
 
       continue;
     }
 
-    if (
-      !existing.organization
-    ) {
-      existing.organization =
-        candidate.organization;
+    if (!existing.organization) {
+      existing.organization = candidate.organization;
     }
 
-    if (
-      !existing.employmentType
-    ) {
-      existing.employmentType =
-        candidate.employmentType ||
-        null;
+    if (!existing.employmentType) {
+      existing.employmentType = candidate.employmentType || null;
     }
 
-    if (
-      !existing.location
-    ) {
-      existing.location =
-        candidate.location ||
-        null;
+    if (!existing.location) {
+      existing.location = candidate.location || null;
     }
   }
 
   let searchCursor = 0;
 
-  for (
-    const role of
-      linkedRoles
-  ) {
-    const found =
-      findRolePosition(
-        sectionLines,
-        role,
-        searchCursor
-      );
+  for (const role of linkedRoles) {
+    const found = findRolePosition(sectionLines, role, searchCursor);
 
-    role._position =
-      found.position;
+    role._position = found.position;
 
-    role._datePosition =
-      found.datePosition;
+    role._datePosition = found.datePosition;
 
-    if (
-      found.position != null
-    ) {
-      searchCursor =
-        found.position + 1;
+    if (found.position != null) {
+      searchCursor = found.position + 1;
     }
   }
 
-  const domFallbackRoles =
-    [];
+  const domFallbackRoles = [];
 
-  for (
-    const candidate of
-      section.domSingleDateRoles ||
-      []
-  ) {
-    const organizationUrl =
-      canonicalLinkedInEntityUrl(
-        candidate.organizationUrl
-      );
+  for (const candidate of section.domSingleDateRoles || []) {
+    const organizationUrl = canonicalLinkedInEntityUrl(
+      candidate.organizationUrl,
+    );
 
-    if (
-      !organizationUrl ||
-      !candidate.organization ||
-      !candidate.title
-    ) {
+    if (!organizationUrl || !candidate.organization || !candidate.title) {
       continue;
     }
 
-    const dates =
-      splitDateDuration(
-        candidate.dateLine
-      );
+    const dates = splitDateDuration(candidate.dateLine);
 
-    const header =
-      organizationHeaders.get(
-        organizationUrl
-      ) || {
-        organization:
-          candidate.organization,
+    const header = organizationHeaders.get(organizationUrl) || {
+      organization: candidate.organization,
 
-        employmentType:
-          candidate.employmentType ||
-          null,
+      employmentType: candidate.employmentType || null,
 
-        location:
-          candidate.location ||
-          null,
-      };
+      location: candidate.location || null,
+    };
 
     const duplicate =
       linkedRoles.some(
         (role) =>
-          role.organizationUrl ===
-            organizationUrl &&
-          normalize(
-            role.title
-          ) ===
-            normalize(
-              candidate.title
-            ) &&
-          normalize(
-            role.dateRange
-          ) ===
-            normalize(
-              dates.dateRange
-            )
+          role.organizationUrl === organizationUrl &&
+          normalize(role.title) === normalize(candidate.title) &&
+          normalize(role.dateRange) === normalize(dates.dateRange),
       ) ||
       domFallbackRoles.some(
         (role) =>
-          role.organizationUrl ===
-            organizationUrl &&
-          normalize(
-            role.title
-          ) ===
-            normalize(
-              candidate.title
-            ) &&
-          normalize(
-            role.dateRange
-          ) ===
-            normalize(
-              dates.dateRange
-            )
+          role.organizationUrl === organizationUrl &&
+          normalize(role.title) === normalize(candidate.title) &&
+          normalize(role.dateRange) === normalize(dates.dateRange),
       );
 
     if (duplicate) {
@@ -2881,428 +1774,223 @@ export function parseExperience(
     }
 
     const role = {
-      title:
-        candidate.title,
+      title: candidate.title,
 
-      organization:
-        candidate.organization ||
-        header.organization ||
-        null,
+      organization: candidate.organization || header.organization || null,
 
-      employmentType:
-        candidate.employmentType ||
-        header.employmentType ||
-        null,
+      employmentType: candidate.employmentType || header.employmentType || null,
 
-      location:
-        candidate.location ||
-        header.location ||
-        null,
+      location: candidate.location || header.location || null,
 
-      organizationLocation:
-        header.location ||
-        candidate.location ||
-        null,
+      organizationLocation: header.location || candidate.location || null,
 
-      dateRange:
-        dates.dateRange,
+      dateRange: dates.dateRange,
 
-      duration:
-        dates.duration,
+      duration: dates.duration,
 
       organizationUrl,
 
-      description:
-        null,
+      description: null,
 
-      _source:
-        "dom-single-date",
+      _source: 'dom-single-date',
 
-      _position:
-        null,
+      _position: null,
 
-      _datePosition:
-        null,
+      _datePosition: null,
     };
 
-    const found =
-      findRolePosition(
-        sectionLines,
-        role,
-        0
-      );
+    const found = findRolePosition(sectionLines, role, 0);
 
-    role._position =
-      found.position;
+    role._position = found.position;
 
-    role._datePosition =
-      found.datePosition;
+    role._datePosition = found.datePosition;
 
-    domFallbackRoles.push(
-      role
-    );
+    domFallbackRoles.push(role);
   }
 
-  const allRoles =
-    [
-      ...linkedRoles,
-      ...domFallbackRoles,
-    ];
+  const allRoles = [...linkedRoles, ...domFallbackRoles];
 
   allRoles.sort(
     (a, b) =>
-      (
-        a._position ??
-        Number.MAX_SAFE_INTEGER
-      ) -
-      (
-        b._position ??
-        Number.MAX_SAFE_INTEGER
-      )
+      (a._position ?? Number.MAX_SAFE_INTEGER) -
+      (b._position ?? Number.MAX_SAFE_INTEGER),
   );
 
-  const knownOrganizationNames =
-    new Set();
+  const knownOrganizationNames = new Set();
 
-  const knownLocations =
-    new Set();
+  const knownLocations = new Set();
 
-  for (
-    const header of
-      organizationHeaders.values()
-  ) {
-    if (
-      header.organization
-    ) {
-      knownOrganizationNames.add(
-        normalize(
-          header.organization
-        )
-      );
+  for (const header of organizationHeaders.values()) {
+    if (header.organization) {
+      knownOrganizationNames.add(normalize(header.organization));
     }
 
-    if (
-      header.location
-    ) {
-      knownLocations.add(
-        normalize(
-          header.location
-        )
-      );
+    if (header.location) {
+      knownLocations.add(normalize(header.location));
     }
   }
 
-  for (
-    const role of
-      allRoles
-  ) {
-    if (
-      role.location
-    ) {
-      knownLocations.add(
-        normalize(
-          role.location
-        )
-      );
+  for (const role of allRoles) {
+    if (role.location) {
+      knownLocations.add(normalize(role.location));
     }
   }
 
-  for (
-    let i = 0;
-    i < allRoles.length;
-    i++
-  ) {
-    const role =
-      allRoles[i];
+  for (let i = 0; i < allRoles.length; i++) {
+    const role = allRoles[i];
 
-    if (
-      role._position == null
-    ) {
+    if (role._position == null) {
       continue;
     }
 
     const contentStart =
-      role._datePosition != null
-        ? role._datePosition + 1
-        : role._position + 1;
+      role._datePosition != null ? role._datePosition + 1 : role._position + 1;
 
-    let end =
-      sectionLines.length;
+    let end = sectionLines.length;
 
-    for (
-      let j = i + 1;
-      j < allRoles.length;
-      j++
-    ) {
+    for (let j = i + 1; j < allRoles.length; j++) {
       if (
-        allRoles[j]
-          ._position != null &&
-        allRoles[j]
-          ._position >
-          role._position
+        allRoles[j]._position != null &&
+        allRoles[j]._position > role._position
       ) {
-        end =
-          allRoles[j]
-            ._position;
+        end = allRoles[j]._position;
 
         break;
       }
     }
 
-    for (
-      let j =
-        contentStart;
-      j < end;
-      j++
-    ) {
-      if (
-        knownOrganizationNames.has(
-          normalize(
-            sectionLines[j]
-          )
-        )
-      ) {
+    for (let j = contentStart; j < end; j++) {
+      if (knownOrganizationNames.has(normalize(sectionLines[j]))) {
         end = j;
 
         break;
       }
     }
 
-    const descriptionLines =
-      sectionLines
-        .slice(
-          contentStart,
-          end
-        )
-        .filter(
-          (line) => {
-            const normalized =
-              normalize(
-                line
-              );
+    const descriptionLines = sectionLines
+      .slice(contentStart, end)
+      .filter((line) => {
+        const normalized = normalize(line);
 
-            if (
-              isExperienceDate(
-                line
-              )
-            ) {
-              return false;
-            }
+        if (isExperienceDate(line)) {
+          return false;
+        }
 
-            if (
-              knownOrganizationNames.has(
-                normalized
-              )
-            ) {
-              return false;
-            }
+        if (knownOrganizationNames.has(normalized)) {
+          return false;
+        }
 
-            if (
-              knownLocations.has(
-                normalized
-              )
-            ) {
-              return false;
-            }
+        if (knownLocations.has(normalized)) {
+          return false;
+        }
 
-            if (
-              looksLikeEmploymentMeta(
-                line
-              )
-            ) {
-              return false;
-            }
+        if (looksLikeEmploymentMeta(line)) {
+          return false;
+        }
 
-            if (
-              /^skills?:/i.test(
-                line
-              )
-            ) {
-              return false;
-            }
+        if (/^skills?:/i.test(line)) {
+          return false;
+        }
 
-            if (
-              /\+\d+\s+skills?$/i.test(
-                line
-              )
-            ) {
-              return false;
-            }
+        if (/\+\d+\s+skills?$/i.test(line)) {
+          return false;
+        }
 
-            if (
-              /^certificate$/i.test(
-                line
-              )
-            ) {
-              return false;
-            }
+        if (/^certificate$/i.test(line)) {
+          return false;
+        }
 
-            if (
-              /^linkedin helped/i.test(
-                line
-              )
-            ) {
-              return false;
-            }
+        if (/^linkedin helped/i.test(line)) {
+          return false;
+        }
 
-            if (
-              /^helped me get this job$/i.test(
-                line
-              )
-            ) {
-              return false;
-            }
+        if (/^helped me get this job$/i.test(line)) {
+          return false;
+        }
 
-            return true;
-          }
-        );
+        return true;
+      });
 
-    role.description =
-      clean(
-        descriptionLines.join(
-          "\n"
-        )
-      );
+    role.description = clean(descriptionLines.join('\n'));
   }
 
-  const grouped =
-    new Map();
+  const grouped = new Map();
 
-  for (
-    const role of
-      allRoles
-  ) {
-    if (
-      !role.organizationUrl
-    ) {
+  for (const role of allRoles) {
+    if (!role.organizationUrl) {
       continue;
     }
 
-    const key =
-      role.organizationUrl;
+    const key = role.organizationUrl;
 
-    if (
-      !grouped.has(
-        key
-      )
-    ) {
-      grouped.set(
-        key,
-        {
-          company:
-            role.organization ||
-            null,
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        company: role.organization || null,
 
-          companyUrl:
-            role.organizationUrl,
+        companyUrl: role.organizationUrl,
 
-          employmentType:
-            role.employmentType ||
-            null,
+        employmentType: role.employmentType || null,
 
-          location:
-            role.organizationLocation ||
-            role.location ||
-            null,
+        location: role.organizationLocation || role.location || null,
 
-          roles: [],
-        }
-      );
+        roles: [],
+      });
     }
 
-    const organization =
-      grouped.get(
-        key
-      );
+    const organization = grouped.get(key);
 
-    if (
-      !organization.company &&
-      role.organization
-    ) {
-      organization.company =
-        role.organization;
+    if (!organization.company && role.organization) {
+      organization.company = role.organization;
     }
 
-    if (
-      !organization.employmentType &&
-      role.employmentType
-    ) {
-      organization.employmentType =
-        role.employmentType;
+    if (!organization.employmentType && role.employmentType) {
+      organization.employmentType = role.employmentType;
     }
 
-    if (
-      !organization.location &&
-      role.location
-    ) {
-      organization.location =
-        role.location;
+    if (!organization.location && role.location) {
+      organization.location = role.location;
     }
 
     organization.roles.push({
-      title:
-        role.title,
+      title: role.title,
 
-      dateRange:
-        role.dateRange,
+      dateRange: role.dateRange,
 
-      duration:
-        role.duration,
+      duration: role.duration,
 
-      location:
-        role.location ||
-        organization.location ||
-        null,
+      location: role.location || organization.location || null,
 
-      description:
-        role.description,
+      description: role.description,
     });
   }
 
   return {
-    organizations:
-      Array.from(
-        grouped.values()
-      ),
+    organizations: Array.from(grouped.values()),
 
     debug: {
-      linkedRoles:
-        linkedRoles.length,
+      linkedRoles: linkedRoles.length,
 
-      domFallbackRoles:
-        domFallbackRoles.length,
+      domFallbackRoles: domFallbackRoles.length,
 
-      totalRoles:
-        allRoles.length,
+      totalRoles: allRoles.length,
 
-      domFallbackRoleDetails:
-        domFallbackRoles.map(
-          (role) => ({
-            title:
-              role.title,
+      domFallbackRoleDetails: domFallbackRoles.map((role) => ({
+        title: role.title,
 
-            organization:
-              role.organization,
+        organization: role.organization,
 
-            employmentType:
-              role.employmentType,
+        employmentType: role.employmentType,
 
-            dateRange:
-              role.dateRange,
+        dateRange: role.dateRange,
 
-            duration:
-              role.duration,
+        duration: role.duration,
 
-            organizationUrl:
-              role.organizationUrl,
+        organizationUrl: role.organizationUrl,
 
-            location:
-              role.location,
+        location: role.location,
 
-            position:
-              role._position,
-          })
-        ),
+        position: role._position,
+      })),
     },
   };
 }
@@ -3311,39 +1999,16 @@ export function parseExperience(
    EDUCATION
    ========================================================= */
 
-function findLineSequence(
-  haystack,
-  needle,
-  startAt = 0
-) {
-  if (
-    !needle.length ||
-    needle.length >
-      haystack.length
-  ) {
+function findLineSequence(haystack, needle, startAt = 0) {
+  if (!needle.length || needle.length > haystack.length) {
     return -1;
   }
 
-  for (
-    let i = startAt;
-    i <=
-    haystack.length -
-      needle.length;
-    i++
-  ) {
+  for (let i = startAt; i <= haystack.length - needle.length; i++) {
     let matches = true;
 
-    for (
-      let j = 0;
-      j < needle.length;
-      j++
-    ) {
-      if (
-        haystack[
-          i + j
-        ] !==
-        needle[j]
-      ) {
+    for (let j = 0; j < needle.length; j++) {
+      if (haystack[i + j] !== needle[j]) {
         matches = false;
 
         break;
@@ -3358,153 +2023,67 @@ function findLineSequence(
   return -1;
 }
 
-export function parseEducation(
-  section,
-  expectedCount = null
-) {
+export function parseEducation(section, expectedCount = null) {
   if (!section) {
     return [];
   }
 
-  const rawLines =
-    lines(
-      section.text
-    ).filter(
-      (line) =>
-        !/^education$/i.test(
-          line
-        )
-    );
-
-  const consumed =
-    new Array(
-      rawLines.length
-    ).fill(false);
-
-  rawLines.forEach(
-    (
-      line,
-      index
-    ) => {
-      if (
-        /^skills?:/i.test(
-          line
-        ) ||
-        /^show all/i.test(
-          line
-        )
-      ) {
-        consumed[index] =
-          true;
-      }
-    }
+  const rawLines = lines(section.text).filter(
+    (line) => !/^education$/i.test(line),
   );
 
-  const relevantLinks =
-    section.links.filter(
-      (link) =>
-        link.text &&
-        (
-          link.href?.includes(
-            "linkedin.com/school/"
-          ) ||
-          link.href?.includes(
-            "linkedin.com/company/"
-          )
-        )
-    );
+  const consumed = new Array(rawLines.length).fill(false);
+
+  rawLines.forEach((line, index) => {
+    if (/^skills?:/i.test(line) || /^show all/i.test(line)) {
+      consumed[index] = true;
+    }
+  });
+
+  const relevantLinks = section.links.filter(
+    (link) =>
+      link.text &&
+      (link.href?.includes('linkedin.com/school/') ||
+        link.href?.includes('linkedin.com/company/')),
+  );
 
   const entries = [];
 
   let searchCursor = 0;
 
-  for (
-    const link of
-      relevantLinks
-  ) {
-    const data =
-      lines(
-        link.text
-      );
+  for (const link of relevantLinks) {
+    const data = lines(link.text);
 
     if (!data.length) {
       continue;
     }
 
-    const institution =
-      data[0];
+    const institution = data[0];
 
-    let position =
-      findLineSequence(
-        rawLines,
-        data,
-        searchCursor
-      );
+    let position = findLineSequence(rawLines, data, searchCursor);
 
-    if (
-      position < 0
-    ) {
-      position =
-        rawLines.findIndex(
-          (line) =>
-            line ===
-            institution
-        );
+    if (position < 0) {
+      position = rawLines.findIndex((line) => line === institution);
     }
 
-    if (
-      position >= 0
-    ) {
-      for (
-        let j = 0;
-        j < data.length;
-        j++
-      ) {
-        if (
-          position + j <
-          consumed.length
-        ) {
-          consumed[
-            position + j
-          ] = true;
+    if (position >= 0) {
+      for (let j = 0; j < data.length; j++) {
+        if (position + j < consumed.length) {
+          consumed[position + j] = true;
         }
       }
 
-      searchCursor =
-        position +
-        data.length;
+      searchCursor = position + data.length;
     }
 
-    const dateIndex =
-      data.findIndex(
-        isDateRange
-      );
+    const dateIndex = data.findIndex(isDateRange);
 
-    let degree =
-      null;
+    let degree = null;
 
-    if (
-      dateIndex > 1
-    ) {
-      degree =
-        clean(
-          data
-            .slice(
-              1,
-              dateIndex
-            )
-            .join(" ")
-        );
-    } else if (
-      dateIndex === -1 &&
-      data.length > 1
-    ) {
-      degree =
-        clean(
-          data
-            .slice(1)
-            .join(" ")
-        );
+    if (dateIndex > 1) {
+      degree = clean(data.slice(1, dateIndex).join(' '));
+    } else if (dateIndex === -1 && data.length > 1) {
+      degree = clean(data.slice(1).join(' '));
     }
 
     entries.push({
@@ -3512,89 +2091,39 @@ export function parseEducation(
       degree,
 
       dateRange:
-        dateIndex >= 0
-          ? splitDateDuration(
-              data[
-                dateIndex
-              ]
-            ).dateRange
-          : null,
+        dateIndex >= 0 ? splitDateDuration(data[dateIndex]).dateRange : null,
 
-      linkedinUrl:
-        link.href,
+      linkedinUrl: link.href,
 
-      _position:
-        position >= 0
-          ? position
-          : Number.MAX_SAFE_INTEGER,
+      _position: position >= 0 ? position : Number.MAX_SAFE_INTEGER,
     });
   }
 
-  let uniqueEntries =
-    uniqueBy(
-      entries,
-      (item) =>
-        `${normalize(
-          item.institution
-        )}|${normalize(
-          item.degree
-        )}`
-    );
+  let uniqueEntries = uniqueBy(
+    entries,
+    (item) => `${normalize(item.institution)}|${normalize(item.degree)}`,
+  );
 
-  if (
-    expectedCount != null &&
-    uniqueEntries.length >=
-      expectedCount
-  ) {
-    uniqueEntries.sort(
-      (a, b) =>
-        a._position -
-        b._position
-    );
+  if (expectedCount != null && uniqueEntries.length >= expectedCount) {
+    uniqueEntries.sort((a, b) => a._position - b._position);
 
-    return uniqueEntries.map(
-      ({
-        _position,
-        ...entry
-      }) => entry
-    );
+    return uniqueEntries.map(({ _position, ...entry }) => entry);
   }
 
-  if (
-    expectedCount == null
-  ) {
-    uniqueEntries.sort(
-      (a, b) =>
-        a._position -
-        b._position
-    );
+  if (expectedCount == null) {
+    uniqueEntries.sort((a, b) => a._position - b._position);
 
-    return uniqueEntries.map(
-      ({
-        _position,
-        ...entry
-      }) => entry
-    );
+    return uniqueEntries.map(({ _position, ...entry }) => entry);
   }
 
   const leftoverBlocks = [];
 
   let currentBlock = [];
 
-  for (
-    let i = 0;
-    i < rawLines.length;
-    i++
-  ) {
-    if (
-      consumed[i]
-    ) {
-      if (
-        currentBlock.length
-      ) {
-        leftoverBlocks.push(
-          currentBlock
-        );
+  for (let i = 0; i < rawLines.length; i++) {
+    if (consumed[i]) {
+      if (currentBlock.length) {
+        leftoverBlocks.push(currentBlock);
 
         currentBlock = [];
       }
@@ -3605,118 +2134,61 @@ export function parseEducation(
     currentBlock.push({
       index: i,
 
-      text:
-        rawLines[i],
+      text: rawLines[i],
     });
   }
 
-  if (
-    currentBlock.length
-  ) {
-    leftoverBlocks.push(
-      currentBlock
-    );
+  if (currentBlock.length) {
+    leftoverBlocks.push(currentBlock);
   }
 
-  for (
-    const block of
-      leftoverBlocks
-  ) {
-    if (
-      uniqueEntries.length >=
-      expectedCount
-    ) {
+  for (const block of leftoverBlocks) {
+    if (uniqueEntries.length >= expectedCount) {
       break;
     }
 
-    const blockLines =
-      block
-        .map(
-          (item) =>
-            item.text
-        )
-        .filter(Boolean);
+    const blockLines = block.map((item) => item.text).filter(Boolean);
 
-    if (
-      blockLines.length < 2 ||
-      blockLines.length > 4
-    ) {
+    if (blockLines.length < 2 || blockLines.length > 4) {
       continue;
     }
 
     if (
       blockLines.some(
         (line) =>
-          /^skills?:/i.test(
-            line
-          ) ||
-          /^show all/i.test(
-            line
-          ) ||
-          /^grade:/i.test(
-            line
-          ) ||
-          /^activities and societies:/i.test(
-            line
-          )
+          /^skills?:/i.test(line) ||
+          /^show all/i.test(line) ||
+          /^grade:/i.test(line) ||
+          /^activities and societies:/i.test(line),
       )
     ) {
       continue;
     }
 
-    const dateIndex =
-      blockLines.findIndex(
-        isDateRange
-      );
+    const dateIndex = blockLines.findIndex(isDateRange);
 
-    if (
-      dateIndex >= 0 &&
-      dateIndex !==
-        blockLines.length - 1
-    ) {
+    if (dateIndex >= 0 && dateIndex !== blockLines.length - 1) {
       continue;
     }
 
-    const institution =
-      blockLines[0];
+    const institution = blockLines[0];
 
-    const degree =
-      clean(
-        (
-          dateIndex >= 0
-            ? blockLines.slice(
-                1,
-                dateIndex
-              )
-            : blockLines.slice(
-                1
-              )
-        ).join(" ")
-      );
+    const degree = clean(
+      (dateIndex >= 0
+        ? blockLines.slice(1, dateIndex)
+        : blockLines.slice(1)
+      ).join(' '),
+    );
 
-    if (
-      !institution ||
-      !degree
-    ) {
+    if (!institution || !degree) {
       continue;
     }
 
-    const duplicate =
-      uniqueEntries.some(
-        (entry) =>
-          normalize(
-            entry.institution
-          ) ===
-            normalize(
-              institution
-            ) &&
-          normalize(
-            entry.degree
-          ) ===
-            normalize(
-              degree
-            )
-      );
+    const duplicate = uniqueEntries.some(
+      (entry) =>
+        normalize(entry.institution) === normalize(institution) &&
+        normalize(entry.degree) === normalize(degree),
+    );
 
     if (duplicate) {
       continue;
@@ -3728,186 +2200,88 @@ export function parseEducation(
 
       dateRange:
         dateIndex >= 0
-          ? splitDateDuration(
-              blockLines[
-                dateIndex
-              ]
-            ).dateRange
+          ? splitDateDuration(blockLines[dateIndex]).dateRange
           : null,
 
-      linkedinUrl:
-        null,
+      linkedinUrl: null,
 
-      _position:
-        block[0].index,
+      _position: block[0].index,
     });
   }
 
-  uniqueEntries.sort(
-    (a, b) =>
-      a._position -
-      b._position
-  );
+  uniqueEntries.sort((a, b) => a._position - b._position);
 
-  return uniqueEntries.map(
-    ({
-      _position,
-      ...entry
-    }) => entry
-  );
+  return uniqueEntries.map(({ _position, ...entry }) => entry);
 }
 
 /* =========================================================
    CERTIFICATIONS
    ========================================================= */
 
-export function parseCertifications(
-  section
-) {
+export function parseCertifications(section) {
   if (!section) {
     return [];
   }
 
-  const data =
-    lines(
-      section.text
-    ).filter(
-      (line) =>
-        !/^licenses & certifications$/i.test(
-          line
-        )
-    );
+  const data = lines(section.text).filter(
+    (line) => !/^licenses & certifications$/i.test(line),
+  );
 
   const issuedIndexes = [];
 
-  data.forEach(
-    (
-      line,
-      index
-    ) => {
-      if (
-        /^issued\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)/i.test(
-          line
-        )
-      ) {
-        issuedIndexes.push(
-          index
-        );
-      }
-    }
-  );
-
-  const credentialUrls =
-    section.links
-      .filter(
-        (link) =>
-          /^show credential$/i.test(
-            clean(
-              link.text
-            ) || ""
-          )
+  data.forEach((line, index) => {
+    if (
+      /^issued\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)/i.test(
+        line,
       )
-      .map(
-        (link) =>
-          link.href
-      );
+    ) {
+      issuedIndexes.push(index);
+    }
+  });
+
+  const credentialUrls = section.links
+    .filter((link) => /^show credential$/i.test(clean(link.text) || ''))
+    .map((link) => link.href);
 
   const results = [];
 
-  for (
-    let i = 0;
-    i <
-    issuedIndexes.length;
-    i++
-  ) {
-    const index =
-      issuedIndexes[i];
+  for (let i = 0; i < issuedIndexes.length; i++) {
+    const index = issuedIndexes[i];
 
-    const name =
-      data[
-        index - 2
-      ] || null;
+    const name = data[index - 2] || null;
 
-    const issuer =
-      data[
-        index - 1
-      ] || null;
+    const issuer = data[index - 1] || null;
 
-    const nextIndex =
-      issuedIndexes[
-        i + 1
-      ];
+    const nextIndex = issuedIndexes[i + 1];
 
     const end =
-      nextIndex != null
-        ? Math.max(
-            index + 1,
-            nextIndex - 2
-          )
-        : data.length;
+      nextIndex != null ? Math.max(index + 1, nextIndex - 2) : data.length;
 
-    const details =
-      data.slice(
-        index + 1,
-        end
-      );
+    const details = data.slice(index + 1, end);
 
-    const credentialLine =
-      details.find(
-        (line) =>
-          /^credential id/i.test(
-            line
-          )
-      );
+    const credentialLine = details.find((line) => /^credential id/i.test(line));
 
-    const skillsLine =
-      details.find(
-        (line) =>
-          /^skills?:/i.test(
-            line
-          )
-      );
+    const skillsLine = details.find((line) => /^skills?:/i.test(line));
 
     results.push({
       name,
       issuer,
 
-      issued:
-        clean(
-          data[
-            index
-          ].replace(
-            /^issued\s+/i,
-            ""
-          )
-        ),
+      issued: clean(data[index].replace(/^issued\s+/i, '')),
 
-      credentialId:
-        credentialLine
-          ? clean(
-              credentialLine.replace(
-                /^credential id\s*/i,
-                ""
-              )
-            )
-          : null,
+      credentialId: credentialLine
+        ? clean(credentialLine.replace(/^credential id\s*/i, ''))
+        : null,
 
-      credentialUrl:
-        credentialUrls[
-          i
-        ] || null,
+      credentialUrl: credentialUrls[i] || null,
 
-      skills:
-        skillsLine
-          ? skillsLine
-              .replace(
-                /^skills?:\s*/i,
-                ""
-              )
-              .split(",")
-              .map(clean)
-              .filter(Boolean)
-          : [],
+      skills: skillsLine
+        ? skillsLine
+            .replace(/^skills?:\s*/i, '')
+            .split(',')
+            .map(clean)
+            .filter(Boolean)
+        : [],
     });
   }
 
@@ -3923,76 +2297,41 @@ function extractConfirmedSkills({
   experienceSection = null,
   certifications = [],
 }) {
-  const confirmed =
-    new Set();
+  const confirmed = new Set();
 
   function addSkill(value) {
-    const skill =
-      clean(value);
+    const skill = clean(value);
 
     if (!skill) {
       return;
     }
 
-    if (
-      /^\+\d+\s+skills?$/i.test(
-        skill
-      )
-    ) {
+    if (/^\+\d+\s+skills?$/i.test(skill)) {
       return;
     }
 
-    confirmed.add(
-      normalize(
-        skill
-      )
-    );
+    confirmed.add(normalize(skill));
   }
 
-  for (
-    const skill of
-      topSkills
-  ) {
+  for (const skill of topSkills) {
     addSkill(skill);
   }
 
-  for (
-    const cert of
-      certifications
-  ) {
-    for (
-      const skill of
-        cert.skills || []
-    ) {
+  for (const cert of certifications) {
+    for (const skill of cert.skills || []) {
       addSkill(skill);
     }
   }
 
-  if (
-    experienceSection?.text
-  ) {
-    for (
-      const line of
-        lines(
-          experienceSection.text
-        )
-    ) {
-      const match =
-        line.match(
-          /^skills?:\s*(.+)$/i
-        );
+  if (experienceSection?.text) {
+    for (const line of lines(experienceSection.text)) {
+      const match = line.match(/^skills?:\s*(.+)$/i);
 
       if (!match) {
         continue;
       }
 
-      for (
-        const value of
-          match[1]
-            .split(",")
-            .map(clean)
-            .filter(Boolean)
-      ) {
+      for (const value of match[1].split(',').map(clean).filter(Boolean)) {
         addSkill(value);
       }
     }
@@ -4005,10 +2344,7 @@ function extractConfirmedSkills({
    SKILLS
    ========================================================= */
 
-export function parseSkills(
-  section,
-  context = {}
-) {
+export function parseSkills(section, context = {}) {
   if (!section) {
     return {
       skills: [],
@@ -4021,242 +2357,118 @@ export function parseSkills(
     experience = [],
     education = [],
     certifications = [],
-    confirmedSkills =
-      new Set(),
+    confirmedSkills = new Set(),
   } = context;
 
-  const staticIgnored =
-    new Set(
-      [
-        "skills",
-        "all",
-        "industry knowledge",
-        "tools & technologies",
-        "interpersonal skills",
-        "other skills",
-      ].map(normalize)
-    );
-
-  const dynamicNoise =
-    new Set();
-
-  const knownRoleTitles =
-    new Set();
-
-  for (
-    const company of
-      experience
-  ) {
-    for (
-      const role of
-        company.roles || []
-    ) {
-      if (
-        role.title
-      ) {
-        knownRoleTitles.add(
-          normalize(
-            role.title
-          )
-        );
-      }
-
-      if (
-        role.title &&
-        company.company
-      ) {
-        dynamicNoise.add(
-          normalize(
-            `${role.title} at ${company.company}`
-          )
-        );
-      }
-    }
-  }
-
-  for (
-    const item of
-      education
-  ) {
-    if (
-      item.institution
-    ) {
-      dynamicNoise.add(
-        normalize(
-          item.institution
-        )
-      );
-    }
-  }
-
-  for (
-    const cert of
-      certifications
-  ) {
-    if (
-      cert.name
-    ) {
-      dynamicNoise.add(
-        normalize(
-          cert.name
-        )
-      );
-    }
-  }
-
-  const rawCandidates =
+  const staticIgnored = new Set(
     [
-      ...new Set(
-        lines(
-          section.text
-        )
-          .filter(
-            (line) =>
-              !staticIgnored.has(
-                normalize(
-                  line
-                )
-              )
-          )
-          .filter(
-            (line) =>
-              !/certificate\+of\+completion/i.test(
-                line
-              )
-          )
-          .filter(
-            (line) =>
-              !/^show more$/i.test(
-                line
-              )
-          )
-      ),
-    ];
+      'skills',
+      'all',
+      'languages',
+      'projects',
+      'experience',
+      'education',
+      'licenses & certifications',
+      'industry knowledge',
+      'tools & technologies',
+      'interpersonal skills',
+      'other skills',
+    ].map(normalize),
+  );
+
+  const dynamicNoise = new Set();
+
+  for (const company of experience) {
+    for (const role of company.roles || []) {
+      if (role.title && company.company) {
+        dynamicNoise.add(normalize(`${role.title} at ${company.company}`));
+      }
+    }
+  }
+
+  for (const item of education) {
+    if (item.institution) {
+      dynamicNoise.add(normalize(item.institution));
+    }
+  }
+
+  for (const cert of certifications) {
+    if (cert.name) {
+      dynamicNoise.add(normalize(cert.name));
+    }
+  }
+
+  const rawCandidates = [
+    ...new Set(
+      lines(section.text)
+        .filter((line) => !staticIgnored.has(normalize(line)))
+        .filter((line) => !/certificate\+of\+completion/i.test(line))
+        .filter((line) => !/^show more$/i.test(line)),
+    ),
+  ];
 
   const filteredNoise = [];
 
   const skills = [];
 
-  for (
-    const candidate of
-      rawCandidates
-  ) {
-    const normalized =
-      normalize(
-        candidate
-      );
+  for (const candidate of rawCandidates) {
+    const normalized = normalize(candidate);
 
-    if (
-      confirmedSkills.has(
-        normalized
-      )
-    ) {
-      skills.push(
-        candidate
-      );
+    if (confirmedSkills.has(normalized)) {
+      skills.push(candidate);
 
       continue;
     }
 
-    let noiseReason =
-      null;
+    let noiseReason = null;
 
-    if (
-      dynamicNoise.has(
-        normalized
-      )
-    ) {
-      noiseReason =
-        "known-profile-entity";
+    if (dynamicNoise.has(normalized)) {
+      noiseReason = 'known-profile-entity';
     }
 
-    if (
-      !noiseReason
-    ) {
-      const match =
-        candidate.match(
-          /^(.+?)\s+at\s+.+$/i
-        );
+    if (!noiseReason) {
+      const match = candidate.match(/^(.+?)\s+at\s+.+$/i);
 
       if (match) {
-        const possibleRole =
-          normalize(
-            match[1]
-          );
-
-        if (
-          knownRoleTitles.has(
-            possibleRole
-          )
-        ) {
-          noiseReason =
-            "role-association";
-        }
+        noiseReason = 'role-association';
       }
     }
 
-    if (
-      !noiseReason &&
-      /^endorsed by\b/i.test(
-        candidate
-      )
-    ) {
-      noiseReason =
-        "endorsement-metadata";
+    if (!noiseReason && /^endorsed by\b/i.test(candidate)) {
+      noiseReason = 'endorsement-metadata';
     }
 
-    if (
-      !noiseReason &&
-      /^\d+\s+endorsements?$/i.test(
-        candidate
-      )
-    ) {
-      noiseReason =
-        "endorsement-count";
+    if (!noiseReason && /^\d+\s+endorsements?$/i.test(candidate)) {
+      noiseReason = 'endorsement-count';
     }
 
-    if (
-      !noiseReason &&
-      /^\d+\s+experiences?\s+at\b/i.test(
-        candidate
-      )
-    ) {
-      noiseReason =
-        "experience-association";
+    if (!noiseReason && /^\d+\s+experiences?\s+at\b/i.test(candidate)) {
+      noiseReason = 'experience-association';
     }
 
-    if (
-      !noiseReason &&
-      /^passed linkedin skill assessment$/i.test(
-        candidate
-      )
-    ) {
-      noiseReason =
-        "assessment-metadata";
+    if (!noiseReason && /^passed linkedin skill assessment$/i.test(candidate)) {
+      noiseReason = 'assessment-metadata';
     }
 
-    if (
-      noiseReason
-    ) {
+    if (!noiseReason && /\s[-–—]\s/.test(candidate)) {
+      noiseReason = 'project-association';
+    }
+
+    if (noiseReason) {
       filteredNoise.push({
-        value:
-          candidate,
+        value: candidate,
 
-        reason:
-          noiseReason,
+        reason: noiseReason,
       });
 
       continue;
     }
 
-    skills.push(
-      candidate
-    );
+    skills.push(candidate);
   }
 
   return {
-    skills:
-      [...new Set(skills)],
+    skills: [...new Set(skills)],
 
     rawCandidates,
 
@@ -4268,50 +2480,24 @@ export function parseSkills(
    LANGUAGES
    ========================================================= */
 
-export function parseLanguages(
-  section
-) {
+export function parseLanguages(section) {
   if (!section) {
     return [];
   }
 
-  const data =
-    lines(
-      section.text
-    ).filter(
-      (line) =>
-        !/^languages$/i.test(
-          line
-        )
-    );
+  const data = lines(section.text).filter((line) => !/^languages$/i.test(line));
 
-  if (
-    data.some(
-      (line) =>
-        /nothing to see for now/i.test(
-          line
-        )
-    )
-  ) {
+  if (data.some((line) => /nothing to see for now/i.test(line))) {
     return [];
   }
 
   const results = [];
 
-  for (
-    let i = 0;
-    i < data.length;
-    i += 2
-  ) {
+  for (let i = 0; i < data.length; i += 2) {
     results.push({
-      language:
-        data[i] ||
-        null,
+      language: data[i] || null,
 
-      proficiency:
-        data[
-          i + 1
-        ] || null,
+      proficiency: data[i + 1] || null,
     });
   }
 
@@ -4322,48 +2508,26 @@ export function parseLanguages(
    EXPECTED COUNTS
    ========================================================= */
 
-function getExpectedSkillCount(
-  sections
-) {
-  for (
-    const section of
-      sections
-  ) {
-    const heading =
-      section.primaryHeading ||
-      "";
+function getExpectedSkillCount(sections) {
+  for (const section of sections) {
+    const heading = section.primaryHeading || '';
 
-    const match =
-      heading.match(
-        /^Skills\s*\((\d+)\)$/i
-      );
+    const match = heading.match(/^Skills\s*\((\d+)\)$/i);
 
     if (match) {
-      return Number(
-        match[1]
-      );
+      return Number(match[1]);
     }
   }
 
   return null;
 }
 
-function getExpectedEducationCount(
-  sections
-) {
-  for (
-    const section of
-      sections
-  ) {
-    const match =
-      section.text.match(
-        /show all\s+(\d+)\s+educations?/i
-      );
+function getExpectedEducationCount(sections) {
+  for (const section of sections) {
+    const match = section.text.match(/show all\s+(\d+)\s+educations?/i);
 
     if (match) {
-      return Number(
-        match[1]
-      );
+      return Number(match[1]);
     }
   }
 
@@ -4374,8 +2538,7 @@ function getExpectedEducationCount(
    MAIN
    ========================================================= */
 
-
-export const parserVersion = "v11";
+export const parserVersion = 'v12';
 
 export async function extractLinkedInProfile({
   context,
@@ -4383,266 +2546,178 @@ export async function extractLinkedInProfile({
   includeDebug = false,
   assertSession,
 }) {
-  const profilePage =
-    await context.newPage();
+  const profilePage = await context.newPage();
 
   try {
-    await navigateLinkedIn(
-      profilePage,
-      profileUrl
-    );
+    await navigateLinkedIn(profilePage, profileUrl);
 
-    await assertSession?.(
-      profilePage,
-      profileUrl
-    );
+    await assertSession?.(profilePage, profileUrl);
 
-    const resolvedProfileUrl =
-      profilePage.url();
+    const resolvedProfileUrl = profilePage.url();
 
-    const base =
-      getBaseUrl(
-        resolvedProfileUrl
-      );
+    const base = getBaseUrl(resolvedProfileUrl);
 
-    const pageTitle =
-      await profilePage.title();
+    const pageTitle = await profilePage.title();
 
-    const expectedName =
-      clean(
-        pageTitle.replace(
-          /\s*\|\s*LinkedIn\s*$/i,
-          ""
-        )
-      );
+    const expectedName = clean(pageTitle.replace(/\s*\|\s*LinkedIn\s*$/i, ''));
 
     await sleep(2500);
 
-    await hydrateScroll(
-      profilePage,
-      SCROLL_CONFIG.mainProfile,
-      "Main profile"
-    );
+    await hydrateScroll(profilePage, SCROLL_CONFIG.mainProfile, 'Main profile');
 
-    await assertSession?.(
-      profilePage,
-      profileUrl
-    );
+    await assertSession?.(profilePage, profileUrl);
 
-    const mainSections =
-      await collectSections(
-        profilePage
-      );
+    const mainSections = await collectSections(profilePage);
 
-    const headerSection =
-      findHeaderSection(
-        mainSections,
-        expectedName
-      );
+    const headerSection = findHeaderSection(mainSections, expectedName);
 
-    const aboutSection =
-      getMainSection(
-        mainSections,
-        "About"
-      );
+    const aboutSection = getMainSection(mainSections, 'About');
 
-    const expectedSkillCount =
-      getExpectedSkillCount(
-        mainSections
-      );
+    const expectedSkillCount = getExpectedSkillCount(mainSections);
 
-    const expectedEducationCount =
-      getExpectedEducationCount(
-        mainSections
-      );
+    const expectedEducationCount = getExpectedEducationCount(mainSections);
 
-    const header =
-      parseHeader(
-        headerSection,
-        resolvedProfileUrl
-      );
+    const header = parseHeader(headerSection, resolvedProfileUrl, expectedName);
 
-    const about =
-      parseAbout(
-        aboutSection
-      );
+    const about = parseAbout(aboutSection);
 
     // Everything needed from the main profile is now plain data. Closing this
     // renderer before loading detail routes keeps only one LinkedIn page alive
     // at a time, which is critical on 512 MB hosting instances.
-    await profilePage
-      .close()
-      .catch(() => {});
+    await profilePage.close().catch(() => {});
 
     const routes = {
-      experience:
-        `${base}/details/experience/`,
+      experience: `${base}/details/experience/`,
 
-      education:
-        `${base}/details/education/`,
+      education: `${base}/details/education/`,
 
-      certifications:
-        `${base}/details/certifications/`,
+      certifications: `${base}/details/certifications/`,
 
-      skills:
-        `${base}/details/skills/`,
+      skills: `${base}/details/skills/`,
 
-      languages:
-        `${base}/details/languages/`,
+      languages: `${base}/details/languages/`,
     };
 
-    const experienceSection =
-      await loadDetailSection(
-        context,
-        routes.experience,
-        "Experience",
-        SCROLL_CONFIG.detailPage,
-        assertSession
+    const experienceSection = await loadDetailSection(
+      context,
+      routes.experience,
+      'Experience',
+      SCROLL_CONFIG.detailPage,
+      assertSession,
+    );
+
+    const educationSection = await loadDetailSection(
+      context,
+      routes.education,
+      'Education',
+      SCROLL_CONFIG.detailPage,
+      assertSession,
+    );
+
+    const certificationSection = await loadDetailSection(
+      context,
+      routes.certifications,
+      'Licenses & certifications',
+      SCROLL_CONFIG.detailPage,
+      assertSession,
+    );
+
+    const skillsSection = await loadDetailSection(
+      context,
+      routes.skills,
+      'Skills',
+      SCROLL_CONFIG.skills,
+      assertSession,
+    );
+
+    const languagesSection = await loadDetailSection(
+      context,
+      routes.languages,
+      'Languages',
+      SCROLL_CONFIG.detailPage,
+      assertSession,
+    );
+
+    const missingDetailSections = [
+      ['experience', experienceSection],
+      ['education', educationSection],
+      ['certifications', certificationSection],
+      ['skills', skillsSection],
+      ['languages', languagesSection],
+    ]
+      .filter(([, section]) => !section)
+      .map(([name]) => name);
+
+    if (missingDetailSections.length) {
+      throw new Error(
+        `Incomplete LinkedIn extraction: missing ${missingDetailSections.join(', ')} detail sections.`,
       );
+    }
 
-    const educationSection =
-      await loadDetailSection(
-        context,
-        routes.education,
-        "Education",
-        SCROLL_CONFIG.detailPage,
-        assertSession
-      );
+    const experienceResult = parseExperience(experienceSection);
 
-    const certificationSection =
-      await loadDetailSection(
-        context,
-        routes.certifications,
-        "Licenses & certifications",
-        SCROLL_CONFIG.detailPage,
-        assertSession
-      );
+    const experience = experienceResult.organizations;
 
-    const skillsSection =
-      await loadDetailSection(
-        context,
-        routes.skills,
-        "Skills",
-        SCROLL_CONFIG.skills,
-        assertSession
-      );
+    const education = parseEducation(educationSection, expectedEducationCount);
 
-    const languagesSection =
-      await loadDetailSection(
-        context,
-        routes.languages,
-        "Languages",
-        SCROLL_CONFIG.detailPage,
-        assertSession
-      );
+    const certifications = parseCertifications(certificationSection);
 
-    const experienceResult =
-      parseExperience(
-        experienceSection
-      );
+    const confirmedSkills = extractConfirmedSkills({
+      topSkills: about.topSkills,
 
-    const experience =
-      experienceResult
-        .organizations;
+      experienceSection,
 
-    const education =
-      parseEducation(
-        educationSection,
-        expectedEducationCount
-      );
+      certifications,
+    });
 
-    const certifications =
-      parseCertifications(
-        certificationSection
-      );
+    const skillsResult = parseSkills(skillsSection, {
+      experience,
+      education,
+      certifications,
+      confirmedSkills,
+    });
 
-    const confirmedSkills =
-      extractConfirmedSkills({
-        topSkills:
-          about.topSkills,
-
-        experienceSection,
-
-        certifications,
-      });
-
-    const skillsResult =
-      parseSkills(
-        skillsSection,
-        {
-          experience,
-          education,
-          certifications,
-          confirmedSkills,
-        }
-      );
-
-    const languages =
-      parseLanguages(
-        languagesSection
-      );
+    const languages = parseLanguages(languagesSection);
 
     const result = {
-      scrapedAt:
-        new Date().toISOString(),
+      scrapedAt: new Date().toISOString(),
 
       source: {
-        platform:
-          "linkedin",
+        platform: 'linkedin',
 
-        profileUrl:
-          resolvedProfileUrl,
+        profileUrl: resolvedProfileUrl,
       },
 
       profile: {
-        name:
-          header.name ||
-          expectedName ||
-          null,
+        name: header.name || expectedName || null,
 
-        pronouns:
-          header.pronouns ||
-          null,
+        pronouns: header.pronouns || null,
 
-        headline:
-          header.headline ||
-          null,
+        headline: header.headline || null,
 
-        location:
-          header.location ||
-          null,
+        location: header.location || null,
 
-        currentCompany:
-          header.currentCompany ||
-          null,
+        currentCompany: header.currentCompany || null,
 
-        followers:
-          header.followers ||
-          null,
+        followers: header.followers || null,
 
-        connections:
-          header.connections ||
-          null,
+        connections: header.connections || null,
 
-        images:
-          header.images || {
-            profile: null,
-            cover: null,
-          },
+        images: header.images || {
+          profile: null,
+          cover: null,
+        },
 
-        about:
-          about.about,
+        about: about.about,
 
-        topSkills:
-          about.topSkills,
+        topSkills: about.topSkills,
       },
 
       experience,
       education,
       certifications,
 
-      skills:
-        skillsResult.skills,
+      skills: skillsResult.skills,
 
       languages,
 
@@ -4650,169 +2725,86 @@ export async function extractLinkedInProfile({
         parserVersion,
 
         detailPages: {
-          experience:
-            Boolean(
-              experienceSection
-            ),
+          experience: Boolean(experienceSection),
 
-          education:
-            Boolean(
-              educationSection
-            ),
+          education: Boolean(educationSection),
 
-          certifications:
-            Boolean(
-              certificationSection
-            ),
+          certifications: Boolean(certificationSection),
 
-          skills:
-            Boolean(
-              skillsSection
-            ),
+          skills: Boolean(skillsSection),
 
-          languages:
-            Boolean(
-              languagesSection
-            ),
+          languages: Boolean(languagesSection),
         },
 
         expectedCounts: {
-          education:
-            expectedEducationCount,
+          education: expectedEducationCount,
 
-          skills:
-            expectedSkillCount,
+          skills: expectedSkillCount,
         },
 
         actualCounts: {
-          organizations:
-            experience.length,
+          organizations: experience.length,
 
-          roles:
-            experience.reduce(
-              (
-                total,
-                organization
-              ) =>
-                total +
-                (
-                  organization
-                    .roles
-                    ?.length ||
-                  0
-                ),
-              0
-            ),
+          roles: experience.reduce(
+            (total, organization) => total + (organization.roles?.length || 0),
+            0,
+          ),
 
-          education:
-            education.length,
+          education: education.length,
 
-          certifications:
-            certifications.length,
+          certifications: certifications.length,
 
-          skills:
-            skillsResult
-              .skills.length,
+          skills: skillsResult.skills.length,
 
-          languages:
-            languages.length,
+          languages: languages.length,
         },
 
         experience: {
-          linkedRoles:
-            experienceResult
-              .debug
-              .linkedRoles,
+          linkedRoles: experienceResult.debug.linkedRoles,
 
-          domFallbackRoles:
-            experienceResult
-              .debug
-              .domFallbackRoles,
+          domFallbackRoles: experienceResult.debug.domFallbackRoles,
 
-          totalRoles:
-            experienceResult
-              .debug
-              .totalRoles,
+          totalRoles: experienceResult.debug.totalRoles,
 
-          domFallbackRoleDetails:
-            experienceResult
-              .debug
-              .domFallbackRoleDetails,
+          domFallbackRoleDetails: experienceResult.debug.domFallbackRoleDetails,
 
-          rawDomCandidates:
-            experienceSection
-              ?.domSingleDateRoles ||
-            [],
+          rawDomCandidates: experienceSection?.domSingleDateRoles || [],
         },
 
         skills: {
-          rawCandidates:
-            skillsResult
-              .rawCandidates
-              .length,
+          rawCandidates: skillsResult.rawCandidates.length,
 
-          removedMetadata:
-            skillsResult
-              .filteredNoise
-              .length,
+          removedMetadata: skillsResult.filteredNoise.length,
 
-          finalSkills:
-            skillsResult
-              .skills
-              .length,
+          finalSkills: skillsResult.skills.length,
 
-          confirmedSkills:
-            Array.from(
-              confirmedSkills
-            ),
+          confirmedSkills: Array.from(confirmedSkills),
 
-          filteredNoise:
-            skillsResult
-              .filteredNoise,
+          filteredNoise: skillsResult.filteredNoise,
         },
 
         rawSectionSizes: {
-          mainSections:
-            mainSections.length,
+          mainSections: mainSections.length,
 
-          experienceChars:
-            experienceSection
-              ?.text.length ||
-            0,
+          experienceChars: experienceSection?.text.length || 0,
 
-          educationChars:
-            educationSection
-              ?.text.length ||
-            0,
+          educationChars: educationSection?.text.length || 0,
 
-          certificationChars:
-            certificationSection
-              ?.text.length ||
-            0,
+          certificationChars: certificationSection?.text.length || 0,
 
-          skillsChars:
-            skillsSection
-              ?.text.length ||
-            0,
+          skillsChars: skillsSection?.text.length || 0,
 
-          languageChars:
-            languagesSection
-              ?.text.length ||
-            0,
+          languageChars: languagesSection?.text.length || 0,
         },
       },
     };
 
-    if (
-      !includeDebug
-    ) {
+    if (!includeDebug) {
       delete result.debug;
     }
 
     return result;
   } finally {
-    await profilePage
-      .close()
-      .catch(() => {});
+    await profilePage.close().catch(() => {});
   }
 }
