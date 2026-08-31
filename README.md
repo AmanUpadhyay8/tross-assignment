@@ -6,6 +6,9 @@ The service uses a long-lived Playwright browser with an operator-provisioned Li
 
 ## URLs
 
+- Production UI: https://tross-linkedin-profile-api-r4u3.onrender.com/
+- Production profile endpoint: https://tross-linkedin-profile-api-r4u3.onrender.com/api/profile
+- Production health: https://tross-linkedin-profile-api-r4u3.onrender.com/health
 - Test UI: http://localhost:3000/
 - API information: http://localhost:3000/api
 - Profile endpoint: http://localhost:3000/api/profile
@@ -46,7 +49,9 @@ Never commit the storage-state file. It contains private authenticated session m
 ~~~json
 {
   "ok": true,
+  "deployment": "<git-revision>",
   "browser": "not_started",
+  "browserMode": "remote",
   "linkedinSession": "configured"
 }
 ~~~
@@ -114,12 +119,12 @@ POST /api/profile
   -> strict LinkedIn profile URL validation
   -> per-IP rate limiter
   -> low-concurrency queue
-  -> long-lived Playwright browser and authenticated context
-  -> v11 hydration + deterministic DOM/section parser
+  -> Browserbase persistent authenticated context in production
+  -> v12 hydration + resilient semantic DOM/section parser
   -> normalized JSON
 ~~~
 
-The browser is owned by the service. Each request opens its own profile/detail pages and closes them in finally. The authenticated context is reused conservatively and the default extraction concurrency is one.
+Render owns the public Node.js API and UI, while Browserbase runs Chromium. Each request creates a remote browser session attached to the persistent authenticated Browserbase context, opens profile/detail pages sequentially, and closes the browser in `finally`. The default extraction concurrency is one.
 
 ## Engineering approach
 
@@ -140,10 +145,7 @@ LINKEDIN_STORAGE_STATE_PATH=linkedin-storage-state.json
 LINKEDIN_STORAGE_STATE_BASE64=
 ~~~
 
-On memory-constrained hosting, set `BROWSERBASE_API_KEY` to offload Chromium to a
-Browserbase session while keeping this API and its public URL on the host. The
-storage state is installed into the remote context at runtime and the remote
-browser is closed after every request to conserve the free browser-hour quota.
+On memory-constrained hosting, set `BROWSERBASE_API_KEY` to offload Chromium to Browserbase while keeping the API, test UI, and submitted URL on Render. Production uses a persistent Browserbase context. Sign in to LinkedIn once through a Browserbase session created from that context; later API requests reuse its authenticated state. The remote browser is closed after every request to conserve browser hours.
 
 If both are set, the base64 value takes precedence. Values are never logged.
 
@@ -191,7 +193,9 @@ Raw Playwright stacks, full profile JSON, cookies, passwords, storage state, and
 pnpm test
 ~~~
 
-Tests cover URL validation, API error mapping, relationship metadata in header parsing, single-date experience helpers, organization/employment metadata splitting, education fallback gating, context-aware skill filtering, and languages/proficiency pairing. They do not repeatedly hit LinkedIn.
+Tests cover URL validation, API error mapping, alternate header layouts, semantic detail-section matching, relationship metadata in header parsing, single-date experience helpers, organization/employment metadata splitting, education fallback gating, context-aware skill filtering, and languages/proficiency pairing. They do not repeatedly hit LinkedIn.
+
+Parser v12 refuses to return a misleading partial success if a required detail page could not be identified. It returns the normal `scrape_failed` error instead of silently replacing missing sections with empty arrays.
 
 The two known manual regression profiles should be checked sparingly after provisioning a session:
 
@@ -215,10 +219,16 @@ Use your platform's secret manager for the base64 state. Do not bake it into the
 
 ## Deploy
 
-This repository includes a `render.yaml` Blueprint and Dockerfile. The deployed service hosts both the UI and API from one HTTPS origin.
+This repository includes a `render.yaml` Blueprint and Dockerfile. The deployed free-tier Render service hosts both the UI and API from one HTTPS origin; Chromium runs remotely on Browserbase to stay within Render's memory limit.
 
-1. Push this repository to a private GitHub, GitLab, or Bitbucket repository.
-2. Convert `linkedin-storage-state.json` to base64 without printing it:
+1. Push the repository to GitHub and create/apply the Render Blueprint.
+2. Add `BROWSERBASE_API_KEY` in Render's environment settings. Never commit it.
+3. Create a persistent Browserbase context and use a Browserbase session attached to it to sign in to LinkedIn manually. Complete any MFA or verification yourself.
+4. Keep the LinkedIn storage-state setting configured for the application's readiness check, but production authentication comes from the persistent Browserbase context.
+5. Deploy the latest `main` commit and verify `/health` reports `browserMode: "remote"` and the expected `deployment` revision.
+6. Open `/` for the test UI or send a JSON POST to `/api/profile`.
+
+For local-only Playwright mode, convert `linkedin-storage-state.json` to base64 without printing it:
 
 ~~~powershell
 [Convert]::ToBase64String(
@@ -226,11 +236,19 @@ This repository includes a `render.yaml` Blueprint and Dockerfile. The deployed 
 ) | Set-Clipboard
 ~~~
 
-3. In Render, choose **New > Blueprint**, select the repository, and apply `render.yaml`.
-4. Paste the clipboard value into the secret `LINKEDIN_STORAGE_STATE_BASE64` when prompted.
-5. When deployment finishes, open the service URL to use the UI or append `/api/profile` for the endpoint.
-
 Never commit `.env` or the storage-state JSON. Full operational notes are in [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## Deployment difficulties and resolutions
+
+| Problem | Cause | Resolution |
+| --- | --- | --- |
+| Render rejected the Blueprint | `maxShutdownDelaySeconds` is unsupported on the free tier | Removed the paid-tier-only Blueprint option |
+| Render exhausted memory | Bundled Chromium exceeded the free instance's practical RAM budget | Kept the API/UI on Render and moved Chromium execution to Browserbase |
+| LinkedIn repeatedly requested authentication | Local storage state was not sufficient for the remote browser lifecycle | Created a persistent Browserbase context and completed login inside that context |
+| Rate limiter reported `X-Forwarded-For` validation errors | Express did not trust Render's reverse proxy | Enabled the appropriate proxy trust setting so client IP rate limiting works behind Render |
+| Browser pages accumulated across requests | Pages were not reliably closed on every path | Added deterministic page/browser cleanup and sequential detail-page extraction |
+| Some valid profiles returned header fields as `null` and detail arrays as empty | The v11 parser expected one exact LinkedIn section layout and exact text prefixes | Parser v12 scores header candidates, matches semantic headings, filters skill metadata, and rejects incomplete extraction |
+| The public URL appeared unchanged after a push | Render free-tier deploys and cold starts take time | `/health` exposes the served Git revision so deployments can be verified without scraping LinkedIn |
 
 ## Known limitations
 
@@ -241,7 +259,8 @@ Never commit `.env` or the storage-state JSON. Full operational notes are in [DE
 - Optional fields may be null or empty.
 - Extraction is intentionally low-concurrency and may take several minutes.
 - Hidden or non-rendered data is not available.
-- Free hosting instances can cold-start and may not have enough memory for reliable Chromium workloads; increase the service plan if deployments or requests are killed for memory.
+- Render free instances cold-start. The first request can be slow even though Chromium itself runs remotely.
+- Browserbase quotas and persistent-context availability are operational dependencies.
 
 ## Trade-offs
 
