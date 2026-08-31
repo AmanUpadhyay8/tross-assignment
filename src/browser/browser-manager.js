@@ -2,6 +2,23 @@ import { chromium } from "playwright";
 
 import { loadStorageState } from "./auth.js";
 
+const blockedResourceTypes = new Set(["font", "image", "media"]);
+
+const launchArgs = [
+  "--no-sandbox",
+  "--disable-dev-shm-usage",
+  "--disable-background-networking",
+  "--disable-component-update",
+  "--disable-default-apps",
+  "--disable-extensions",
+  "--disable-gpu",
+  "--disable-features=MediaRouter",
+  "--mute-audio",
+  "--no-first-run",
+  "--no-zygote",
+  "--renderer-process-limit=2",
+];
+
 export class BrowserManager {
   constructor(config, launcher = chromium) {
     this.config = config;
@@ -37,9 +54,17 @@ export class BrowserManager {
     const storageState = await loadStorageState(this.config);
     this.browser = await this.launcher.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-dev-shm-usage"],
+      args: launchArgs,
     });
-    this.context = await this.browser.newContext({ storageState });
+    this.context = await this.browser.newContext({
+      storageState,
+      serviceWorkers: "block",
+    });
+    await this.context.route("**/*", (route) =>
+      blockedResourceTypes.has(route.request().resourceType())
+        ? route.abort()
+        : route.continue(),
+    );
     return this.context;
   }
 
