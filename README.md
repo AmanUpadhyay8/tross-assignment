@@ -140,6 +140,11 @@ LINKEDIN_STORAGE_STATE_PATH=linkedin-storage-state.json
 LINKEDIN_STORAGE_STATE_BASE64=
 ~~~
 
+On memory-constrained hosting, set `BROWSERBASE_API_KEY` to offload Chromium to a
+Browserbase session while keeping this API and its public URL on the host. The
+storage state is installed into the remote context at runtime and the remote
+browser is closed after every request to conserve the free browser-hour quota.
+
 If both are set, the base64 value takes precedence. Values are never logged.
 
 If LinkedIn redirects to login, auth wall, checkpoint, challenge, verification, or CAPTCHA, the request stops and returns:
@@ -166,6 +171,7 @@ See .env.example.
 | RATE_LIMIT_MAX | 10 | Requests per window and client |
 | INCLUDE_DEBUG | false | Include parser diagnostics |
 | CORS_ORIGINS | local console origins | Comma-separated allowed origins |
+| BROWSERBASE_API_KEY | empty | Optional remote Chromium API key for low-memory hosts |
 
 ## Error model
 

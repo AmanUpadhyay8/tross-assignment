@@ -81,6 +81,16 @@ If the endpoint returns `upstream_authentication_required`:
 
 The application does not bypass login, MFA, checkpoints, CAPTCHA, challenges, access controls, or LinkedIn rate limits.
 
+## Render free-tier remote browser
+
+Render's free 512 MB instance cannot reliably run Chromium. To preserve the Render
+URL on the free plan, create a Browserbase free API key and add it to the Render
+service as the secret `BROWSERBASE_API_KEY`. The API then creates a remote browser
+for each scrape, installs the configured LinkedIn storage state into that browser,
+and closes it when the request finishes. Browserbase receives the authenticated
+session and viewed page contents; its free plan retains session recordings for
+seven days.
+
 ## Troubleshooting
 
 - **Build fails:** confirm Render selected the Docker runtime and the repository contains `Dockerfile`, `pnpm-lock.yaml`, and `public/index.html`.

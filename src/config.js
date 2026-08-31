@@ -26,6 +26,7 @@ export function createConfig(env = process.env) {
     includeDebug: boolean(env.INCLUDE_DEBUG),
     storageStatePath: env.LINKEDIN_STORAGE_STATE_PATH || "",
     storageStateBase64: env.LINKEDIN_STORAGE_STATE_BASE64 || "",
+    browserbaseApiKey: env.BROWSERBASE_API_KEY || "",
     corsOrigins: (env.CORS_ORIGINS || defaultCorsOrigins.join(","))
       .split(",")
       .map((value) => value.trim())

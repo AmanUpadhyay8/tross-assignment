@@ -67,6 +67,9 @@ export class LinkedInService {
             .map((page) => page.close()),
         );
       }
+      if (this.browserManager.isRemote?.()) {
+        await this.browserManager.close();
+      }
     }
   }
 }
